@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../scoped_models/main_scoped_model.dart';
 
 class HomeContestList extends StatelessWidget {
+  //final MainModel model;
+  //HomeContestList(this.model);
 
   Widget _buildContestItem(BuildContext context, category) {
     return Container(

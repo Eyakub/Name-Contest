@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../contest/contest_price.dart';
-import '../contest/contest_title.dart';
+import '../ui_elements/contest_price.dart';
+import '../ui_elements/contest_title.dart';
 import '../../scoped_models/main_scoped_model.dart';
 import '../../models/contest.dart';
+import '../ui_elements/contest_end_date.dart';
 
 class ContestCard extends StatelessWidget {
   final Contest contest;
@@ -24,6 +25,10 @@ class ContestCard extends StatelessWidget {
               height: 6.0,
             ),
             ContestPrice(contest.contestPrice.toString()),
+            SizedBox(
+              height: 6.0,
+            ),
+            ContestEndDate(contest.endDate),
           ],
         ),
       ),
@@ -32,6 +37,12 @@ class ContestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return null;
+    return Card(
+      child: Column(
+        children: <Widget>[
+          _buildContestCardItem(),
+        ],
+      ),
+    );
   }
 }
