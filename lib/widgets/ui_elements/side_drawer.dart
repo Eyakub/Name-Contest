@@ -25,7 +25,7 @@ class SideDrawer extends StatelessWidget {
             leading: Icon(Icons.account_circle),
             title: Text("My Profile"),
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.pushReplacementNamed(context, '/userProfile');
             },
           ),
           ListTile(
