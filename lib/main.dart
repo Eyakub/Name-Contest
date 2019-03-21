@@ -4,6 +4,7 @@ import 'pages/login_page.dart';
 import './pages/home_page.dart';
 import './pages/splash_page.dart';
 import './pages/contest_list.dart';
+import './pages/user_profile_page.dart';
 //import 'package:flutter/rendering.dart';
 import './scoped_models/main_scoped_model.dart';
 
@@ -40,6 +41,7 @@ class _MyAppState extends State<MyApp> {
           '/login': (BuildContext context) => LoginPage(_model),
           '/home': (BuildContext context) => HomePage(_model),
           '/contests': (BuildContext context) => ContestListPage(_model),
+          '/userProfile':(BuildContext context) => UserProfilePage(),
         },
         onGenerateRoute: (RouteSettings settings) {
           return null;
