@@ -16,13 +16,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
         drawer: SideDrawer(),
         body: new Stack(
+          
           children: <Widget>[
             ClipPath(
               child: Container(color: Colors.black.withOpacity(0.8)),
               clipper: getClipper(),
             ),
             Positioned(
-              width: 430.0,
+              width: MediaQuery.of(context).size.width,
               top: MediaQuery.of(context).size.height / 5,
               child: Column(
                 children: <Widget>[
