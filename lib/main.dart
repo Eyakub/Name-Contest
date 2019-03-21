@@ -4,13 +4,19 @@ import 'pages/login_page.dart';
 import './pages/home_page.dart';
 import './pages/splash_page.dart';
 import './pages/contest_list.dart';
+
 import './pages/user_profile_page.dart';
 //import 'package:flutter/rendering.dart';
+
+import './pages/create_contest.dart';
+import 'package:flutter/rendering.dart';
+
 import './scoped_models/main_scoped_model.dart';
+
 
 void main() {
   //debugPaintSizeEnabled = true;
-  // debugPaintBaselinesEnabled = true;
+   //debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
   runApp(MyApp());
 }
@@ -42,6 +48,7 @@ class _MyAppState extends State<MyApp> {
           '/home': (BuildContext context) => HomePage(_model),
           '/contests': (BuildContext context) => ContestListPage(_model),
           '/userProfile':(BuildContext context) => UserProfilePage(),
+          '/createContest': (BuildContext context) => CreateContest(),
         },
         onGenerateRoute: (RouteSettings settings) {
           return null;

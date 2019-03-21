@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Contest{
+  final String id;
   final String contestType;
   final String package;
   final int contestPrice;
@@ -15,6 +16,7 @@ class Contest{
 
 
   Contest({
+    @required this.id,
     @required this.contestType,
     @required this.package,
     @required this.contestPrice,

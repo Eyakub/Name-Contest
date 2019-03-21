@@ -32,7 +32,7 @@ class SideDrawer extends StatelessWidget {
             leading: Icon(Icons.add),
             title: Text("Start A Contest"),
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.pushReplacementNamed(context, '/createContest');
             },
           ),
           ListTile(
