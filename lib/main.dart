@@ -5,12 +5,12 @@ import './pages/home_page.dart';
 import './pages/splash_page.dart';
 import './pages/contest_list.dart';
 import './pages/create_contest.dart';
-//import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart';
 import './scoped_models/main_scoped_model.dart';
 
 void main() {
   //debugPaintSizeEnabled = true;
-  // debugPaintBaselinesEnabled = true;
+   //debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
   runApp(MyApp());
 }
