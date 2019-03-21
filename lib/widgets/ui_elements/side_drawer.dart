@@ -11,14 +11,8 @@ class SideDrawer extends StatelessWidget {
             accountName: Text("Eyakub Sorkar"),
             accountEmail: Text("eyakubsorkar@gmail.com"),
             currentAccountPicture: CircleAvatar(
-              backgroundColor:
-              Theme.of(context).platform == TargetPlatform.iOS
-                  ? Colors.blue
-                  : Colors.white,
-              child: Text(
-                "A",
-                style: TextStyle(fontSize: 40.0),
-              ),
+              backgroundImage: NetworkImage(
+                            'https://yt3.ggpht.com/a-/AAuE7mCQh1zjDzo3kjPz4F_VxhTTwOeoCtQwPdfh4Q=s900-mo-c-c0xffffffff-rj-k-no'),
             ),
           ),
           ListTile(

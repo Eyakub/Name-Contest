@@ -27,18 +27,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: Column(
                 children: <Widget>[
                   Container(
-                      width: 150.0,
-                      height: 150.0,
-                      decoration: BoxDecoration(
-                          color: Colors.red,
-                          image: DecorationImage(
-                              image: NetworkImage(
-                                  'https://yt3.ggpht.com/a-/AAuE7mCQh1zjDzo3kjPz4F_VxhTTwOeoCtQwPdfh4Q=s900-mo-c-c0xffffffff-rj-k-no'),
-                              fit: BoxFit.cover),
-                          borderRadius: BorderRadius.all(Radius.circular(75.0)),
-                          boxShadow: [
-                            BoxShadow(blurRadius: 7.0, color: Colors.black)
-                          ])),
+                    width: 130.0,
+                    height: 130.0,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      image: DecorationImage(
+                        image: NetworkImage(
+                            'https://yt3.ggpht.com/a-/AAuE7mCQh1zjDzo3kjPz4F_VxhTTwOeoCtQwPdfh4Q=s900-mo-c-c0xffffffff-rj-k-no'),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(75.0),
+                      ),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 7.0, color: Colors.black)
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 20.0),
                   Text(
                     'Eyakub Sorkar',
@@ -57,12 +62,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   ),
                   SizedBox(height: 25.0),
                   new Container(
-                    margin: EdgeInsets.only(left: 20.0, right: 20.0),
+                    margin: EdgeInsets.only(left: 10.0, right: 10.0),
                     child: new Card(
                       child: new Container(
-                        padding: new EdgeInsets.all(26.0),
+                        padding: new EdgeInsets.all(20.0),
                         child: new Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          //mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             new Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
