@@ -10,7 +10,7 @@ class TitleDefault extends StatelessWidget {
     return new Text(
       title,
       style: TextStyle(
-          fontSize: 13.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito'),
+          fontSize: 15.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito'),
     );
   }
 }

@@ -33,7 +33,7 @@ class SideDrawer extends StatelessWidget {
             leading: Icon(Icons.favorite),
             title: Text("My Wishlist"),
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.pushReplacementNamed(context, '/contestWishlist');
             },
           ),
           ListTile(

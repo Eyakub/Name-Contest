@@ -4,8 +4,8 @@ import 'pages/login_page.dart';
 import './pages/home_page.dart';
 import './pages/splash_page.dart';
 import './pages/contest_list.dart';
-
 import './pages/user_profile_page.dart';
+import './pages/contest_wishlist.dart';
 //import 'package:flutter/rendering.dart';
 
 import './pages/create_contest.dart';
@@ -49,6 +49,7 @@ class _MyAppState extends State<MyApp> {
           '/contests': (BuildContext context) => ContestListPage(_model),
           '/userProfile':(BuildContext context) => UserProfilePage(),
           '/createContest': (BuildContext context) => CreateContest(),
+          '/contestWishlist': (BuildContext context) => ContestWishlist(),
         },
         onGenerateRoute: (RouteSettings settings) {
           return null;
