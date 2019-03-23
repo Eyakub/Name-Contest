@@ -12,7 +12,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: AppBar(
-          title: Text('Create Contest'),
+          title: Text('Profile'),
         ),
         drawer: SideDrawer(),
         body: new Stack(

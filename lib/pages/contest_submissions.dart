@@ -1,60 +1,62 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/ui_elements/contest_prize.dart';
 import '../widgets/ui_elements/contest_title.dart';
 import '../widgets/ui_elements/side_drawer.dart';
 import '../widgets/ui_elements/contest_day_left.dart';
 
-class ContestWishlist extends StatefulWidget {
+class ContestSubmissionPage extends StatefulWidget {
   //final String contestType;
   //ContestWishlist(this.contestType);
 
   @override
   State<StatefulWidget> createState() {
-    return _ContestWishListState();
+    return _ContestSubmissionPageState();
   }
 }
 
-class _ContestWishListState extends State<ContestWishlist> {
-  List<Map<String, dynamic>> _wishlistItems = [
+class _ContestSubmissionPageState extends State<ContestSubmissionPage> {
+  List<Map<String, dynamic>> _submissionList = [
     {
-      "contest_title": "XYX",
-      "contest_type": "Business Name",
-      "contest_prize": "100"
+      "contest_title": "Title 1",
+      "submitted_name_submission": "E-Com",
+      "contest_domain": "Django",
+      "submission_date": "13 March"
     },
     {
-      "contest_title": "ABC",
-      "contest_type": "Domain Name",
-      "contest_prize": "200"
+      "contest_title": "Title 1",
+      "submitted_name_submission": "E-Com",
+      "contest_domain": "Django",
+      "submission_date": "13 March"
     },
   ];
 
-  Widget _buildContestType(Map<String, dynamic> wishlistItem) {
+  Widget _buildSubmittedContestName(Map<String, dynamic> submissionList) {
     return new Text(
-      wishlistItem['contest_type'],
+      submissionList['submitted_name_submission'],
       style: TextStyle(
-          fontSize: 13.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito'),
+          fontSize: 13.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.black38),
     );
   }
 
-  Widget _buildWishlistIcon() {
+  Widget _buildDomainName(Map<String, dynamic> submissionList) {
+    return new Text(
+      submissionList['contest_domain'],
+      style: TextStyle(
+          fontSize: 13.0, fontWeight: FontWeight.bold, fontFamily: 'Nunito', color: Colors.black38),
+    );
+  }
+
+  Widget _buildFavoriteIcon() {
     return new IconButton(
-      icon: Icon(Icons.favorite),
+      icon: Icon(Icons.star_border),
       onPressed: null,
     );
   }
 
-  Widget _buildPrivateIcon() {
-    return new IconButton(
-      icon: Icon(Icons.lock),
-      onPressed: null,
-    );
-  }
-
-  Widget _buildWishlistItem(Map<String, dynamic> wishlistItem) {
+  Widget _buildSubmissionsItem(Map<String, dynamic> submissionList) {
     return Card(
       child: Container(
-        height: 107,
+        height: 135,
         padding: EdgeInsets.only(top: 10, bottom: 10, left: 2, right: 6),
         child: Row(
           children: <Widget>[
@@ -63,7 +65,7 @@ class _ContestWishListState extends State<ContestWishlist> {
               child: Container(
                   //decoration: BoxDecoration(color: Colors.blue),
                   child: ListTile(
-                title: TitleDefault(wishlistItem['contest_title']),
+                title: TitleDefault(submissionList['contest_title']),
                 subtitle: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,11 +73,18 @@ class _ContestWishListState extends State<ContestWishlist> {
                     SizedBox(
                       height: 16.0,
                     ),
-                    _buildContestType(wishlistItem),
+                    _buildSubmittedContestName(submissionList),
+                    _buildDomainName(submissionList),
                     SizedBox(
                       height: 5,
                     ),
-                    ContestPrize(wishlistItem['contest_prize']),
+                    new Row(
+                      children: <Widget>[
+                        Icon(Icons.calendar_today),
+                        SizedBox(width: 4,),
+                        Text(submissionList['submission_date'])
+                      ],
+                    )
                   ],
                 ),
               )),
@@ -90,15 +99,11 @@ class _ContestWishListState extends State<ContestWishlist> {
                       Positioned(
                         top: 0,
                         right: 4,
-                        child: _buildWishlistIcon(),
+                        child: _buildFavoriteIcon(),
                       ),
+                      
                       Positioned(
-                        top: 32,
-                        right: 4,
-                        child: _buildPrivateIcon(),
-                      ),
-                      Positioned(
-                        top: 66,
+                        top: 84,
                         right: 2,
                         child: ContestDayLeft('13 Days Left'),
                       ),
@@ -113,11 +118,11 @@ class _ContestWishListState extends State<ContestWishlist> {
     );
   }
 
-  Widget _buildContestWishlist() {
+  Widget _buildContestSubmissionList() {
     return new ListView.builder(
       itemBuilder: (BuildContext context, int index) =>
-          _buildWishlistItem(_wishlistItems[index]),
-      itemCount: _wishlistItems.length,
+          _buildSubmissionsItem(_submissionList[index]),
+      itemCount: _submissionList.length,
     );
   }
 
@@ -125,13 +130,13 @@ class _ContestWishListState extends State<ContestWishlist> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Wishlist'),
+        title: Text('My Submissions'),
       ),
       drawer: SideDrawer(),
       body: Padding(
         padding:
             EdgeInsets.only(top: 14.0, bottom: 14.0, left: 10.0, right: 10.0),
-        child: _buildContestWishlist(),
+        child: _buildContestSubmissionList(),
       ),
     );
   }

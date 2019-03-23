@@ -16,6 +16,13 @@ class SideDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
+            leading: Icon(Icons.home),
+            title: Text("Home"),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, '/home');
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.account_circle),
             title: Text("My Profile"),
             onTap: () {
@@ -40,7 +47,7 @@ class SideDrawer extends StatelessWidget {
             leading: Icon(Icons.text_format),
             title: Text("My Submission"),
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.pushReplacementNamed(context, '/contestSubmissions');
             },
           ),
           ListTile(
