@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
                     buttonText: 'Show All',
                     buttonTextStyle: TextStyle(fontSize: 16.0),
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/contests');
+                      Navigator.pushReplacementNamed(context, '/contests');
                     },
                   ),
                 ],

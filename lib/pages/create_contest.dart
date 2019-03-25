@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 import '../widgets/ui_elements/side_drawer.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 class CreateContest extends StatefulWidget {
   @override
@@ -15,26 +19,20 @@ class _CreateContestState extends State<CreateContest> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int _currentStep = 1;
 
-  void _handleRadioValueChange(int value) {
-    setState(() {
-      _radioValue = value;
+  bool _isContestTypeLoading = false;
+  bool _isPackageLoading = false;
 
-      switch (_radioValue) {
-        case 0:
-          _result = 0;
-          break;
-        case 1:
-          _result = 0;
-          break;
-        case 3:
-          _result = 0;
-          break;
-        case 4:
-          _result = 0;
-          break;
-        default:
-      }
-    });
+  List<ContestType> _contestTypes = [];
+  List<ContestPackage> _contestPackages = [];
+
+  int _value = 0;
+  void _setvalue(int value) => setState(() => _value = value);
+
+  @override
+  initState() {
+    fetchContestType();
+    //print(_contestTypes.length);
+    super.initState();
   }
 
   void buttonPressState(String btnName) {
@@ -51,9 +49,160 @@ class _CreateContestState extends State<CreateContest> {
     return null;
   }
 
+  Future<Null> fetchContestType() {
+    //print("Loading Contest Type");
+    //var client = createHttpClient();
+    setState(() {
+      _isContestTypeLoading = true;
+    });
+    return http
+        .get('http://10.0.2.2:8000/api/v1/contest/contest-type/?format=json')
+        .then((http.Response response) {
+      final List<ContestType> fetchedContestTypeList = [];
+      //print(json.decode(response.body));
+      final List<dynamic> contestTypeListData = json.decode(response.body);
+      //print(contestTypeListData);
+      if (contestTypeListData == null) {
+        setState(() {
+          _isContestTypeLoading = false;
+        });
+        return;
+      }
+
+      contestTypeListData.forEach((dynamic contestTypeData) {
+        contestTypeData = json.encode(contestTypeData).toString();
+        Map<String, dynamic> contestTypeMap = json.decode(contestTypeData);
+        //print(contestTypeMap);
+        final ContestType contestType =
+            ContestType(id: contestTypeMap['id'], name: contestTypeMap['name']);
+        fetchedContestTypeList.add(contestType);
+      });
+      setState(() {
+        _contestTypes = fetchedContestTypeList;
+        print(_contestTypes);
+        _isContestTypeLoading = false;
+      });
+    });
+  }
+
+  List<ContestType> get allContestType {
+    return List.from(_contestTypes);
+  }
+
+  List<ContestType> get displayContestTypes {
+    return List.from(_contestTypes);
+  }
+
+  Widget makeRadioList() {
+    List<Widget> list = new List<Widget>();
+
+    for (int i = 0; i < _contestTypes.length; i++) {
+      list.add(
+        new RadioListTile(
+          value: i,
+          groupValue: _value,
+          onChanged: _setvalue,
+          activeColor: Colors.green,
+          //controlAffinity: ListTileControlAffinity.leading,
+          title: Text(allContestType[i].name),
+        ),
+      );
+    }
+
+    Column column = new Column(
+      children: list,
+    );
+    return column;
+  }
+
+  Widget makePackageInfoList() {
+    final list = <Widget>[];
+
+    for (int i = 0; i < 3; i++) {
+      list.add(
+        new RaisedButton(
+          child: new Text('Budget'),
+          textColor: Colors.white,
+          shape: new RoundedRectangleBorder(
+            borderRadius: new BorderRadius.circular(6.0),
+          ),
+          color: pressAttention ? Colors.cyan : Colors.transparent,
+          onPressed: () => setState(() => pressAttention = !pressAttention),
+        ),
+      );
+      list.add(
+        new Text(
+          '200+ Submissions\n\$100 Prize Money\nDuration 10 Days',
+          style: TextStyle(
+            fontSize: 15.0,
+          ),
+        ),
+      );
+
+      list.add(
+        SizedBox(
+          height: 8.0,
+        ),
+      );
+    }
+
+    Column column = new Column(
+      children: list,
+    );
+    return column;
+  }
+
+  Future<Null> fetchContestPackage() {
+    setState(() {
+      _isPackageLoading = true;
+    });
+    return http
+        .get(
+            'http://10.0.2.2:8000/api/v1/contest/package/all/?format=json&return_type=json&contest_type=1')
+        .then(
+      (http.Response response) {
+        //print(response.body);
+        final List<ContestPackage> fetchedContestPackageList = [];
+        final List<dynamic> contestPackageListData = json.decode(response.body);
+        if (contestPackageListData == null) {
+          setState(() {
+            _isPackageLoading = false;
+          });
+          return;
+        }
+        contestPackageListData.forEach(
+          (dynamic contestPackageData) {
+            contestPackageData = json.encode(contestPackageData).toString();
+            Map<String, dynamic> contestPackageMap = json.decode(contestPackageData);
+            //print(contestTypeMap);
+            final ContestPackage contestPackage = ContestPackage(
+              id: contestPackageMap['id'],
+              packageName: contestPackageMap['name'],
+              prizeMoney: contestPackageMap['prize_money'],
+              minimumIdeaSubmission:
+                  contestPackageMap['minimum_idea_submission'],
+            );
+            fetchedContestPackageList.add(contestPackage);
+          },
+        );
+        setState(
+          () {
+            _contestPackages = fetchedContestPackageList;
+            _isPackageLoading = false;
+          },
+        );
+        //print("Contest Package Length: " + _contestPackages.length.toString());
+        
+      },
+    );
+  }
+
   void _nextStep() {
     setState(() {
       _currentStep = _currentStep + 1;
+      if(_currentStep == 2) {
+          fetchContestPackage();
+      }
     });
   }
 
@@ -64,110 +213,123 @@ class _CreateContestState extends State<CreateContest> {
   }
 
   Widget _buildStepOne() {
-    int groupValue;
-    return new Container(
-      padding: EdgeInsets.all(10.0),
-      //alignment: AlignmentDirectional(0.0, 0.0),
-      //alighment: AlignmentDirectional(0.0, 0.0),
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Text(
-            'Choose a Contest Type',
-            style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).accentColor),
-          ),
-          new Column(
+    Widget content;
+    //int groupValue;
+    if (!_isContestTypeLoading && _contestTypes.length > 0) {
+      content = Container(
+        padding: EdgeInsets.all(10.0),
+        //alignment: AlignmentDirectional(0.0, 0.0),
+        //alighment: AlignmentDirectional(0.0, 0.0),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Text(
+              'Choose a Contest Type',
+              style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).accentColor),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            new Column(
+              children: <Widget>[
+                makeRadioList(),
+                new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new RaisedButton(
+                      textColor: Colors.white,
+                      color: Theme.of(context).accentColor,
+                      onPressed: _nextStep,
+                      child: Text('Next'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ],
+        ),
+      );
+    } else if (_isContestTypeLoading) {
+      content = Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: () {
+        fetchContestType();
+      },
+      child: content,
+    );
+  }
+
+  Widget _buildStepTwo() {
+    Widget content;
+    if (_contestPackages.length > 0 && !_isPackageLoading) {      
+      content = Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Radio(
-                    value: 0,
-                    groupValue: groupValue,
-                    onChanged: (e) => SawTooth(e),
-                  ),
-                  new Text(
-                    'Business',
-                    style: new TextStyle(fontSize: 16.0),
-                  ),
-                ],
+              new Text(
+                'Choose Package',
+                style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).accentColor),
               ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Radio(
-                    value: 0,
-                    groupValue: groupValue,
-                    onChanged: (e) => SawTooth(e),
-                  ),
-                  new Text(
-                    'Business Name & Domain Name',
-                    style: new TextStyle(fontSize: 16.0),
-                  ),
-                ],
+              SizedBox(
+                height: 6.0,
               ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Radio(
-                    value: 0,
-                    groupValue: groupValue,
-                    onChanged: (e) => SawTooth(e),
-                  ),
-                  new Text(
-                    'Domain',
-                    style: new TextStyle(fontSize: 16.0),
-                  ),
-                ],
+              makePackageInfoList(),
+              SizedBox(
+                height: 14.0,
               ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              new Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new Radio(
-                    value: 0,
-                    groupValue: groupValue,
-                    onChanged: (e) => SawTooth(e),
-                  ),
                   new Text(
-                    'Product Name',
-                    style: new TextStyle(fontSize: 16.0),
+                    'Choose Contest Options',
+                    style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).accentColor),
                   ),
-                ],
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Radio(
-                    value: 0,
-                    groupValue: groupValue,
-                    onChanged: (e) => SawTooth(e),
+                  new Row(
+                    children: <Widget>[
+                      new Checkbox(
+                        value: true,
+                        onChanged: null,
+                      ),
+                      Text('Contest Free \$90')
+                    ],
                   ),
-                  new Text(
-                    'Product Name & Domain',
-                    style: new TextStyle(fontSize: 16.0),
-                  ),
-                ],
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Radio(
-                    value: 0,
-                    groupValue: groupValue,
-                    onChanged: (e) => SawTooth(e),
-                  ),
-                  new Text(
-                    'Tagline',
-                    style: new TextStyle(fontSize: 16.0),
-                  ),
+                  new Row(
+                    children: <Widget>[
+                      new Checkbox(
+                        value: false,
+                        onChanged: null,
+                      ),
+                      Text('Private Contest \$50')
+                    ],
+                  )
                 ],
               ),
               new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  new RaisedButton(
+                    textColor: Colors.white,
+                    color: Theme.of(context).accentColor,
+                    onPressed: _previousStep,
+                    child: Text('Previous'),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
                   new RaisedButton(
                     textColor: Colors.white,
                     color: Theme.of(context).accentColor,
@@ -178,150 +340,14 @@ class _CreateContestState extends State<CreateContest> {
               )
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepTwo() {
-    return new Center(
-      child: SingleChildScrollView(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              'Choose Package',
-              style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).accentColor),
-            ),
-            SizedBox(
-              height: 6.0,
-            ),
-            new Column(
-              children: <Widget>[
-                new RaisedButton(
-                  child: new Text('Budget'),
-                  textColor: Colors.white,
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(6.0),
-                  ),
-                  color: pressAttention ? Colors.cyan : Colors.transparent,
-                  onPressed: () =>
-                      setState(() => pressAttention = !pressAttention),
-                ),
-                new Text(
-                  '200+ Submissions\n\$100 Prize Money\nDuration 10 Days',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 8.0,
-            ),
-            new Column(
-              children: <Widget>[
-                new RaisedButton(
-                  child: new Text('Standard'),
-                  textColor: Colors.white,
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(6.0),
-                  ),
-                  color: pressAttention ? Colors.cyan : Colors.transparent,
-                  onPressed: () =>
-                      setState(() => pressAttention = !pressAttention),
-                ),
-                new Text(
-                  '500+ Submissions\n\$200 Prize Money\nDuration 20 Days',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 8.0,
-            ),
-            new Column(
-              children: <Widget>[
-                new RaisedButton(
-                  child: new Text('Premium'),
-                  textColor: Colors.white,
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(6.0),
-                  ),
-                  color: pressAttention ? Colors.cyan : Colors.transparent,
-                  onPressed: () =>
-                      setState(() => pressAttention = !pressAttention),
-                ),
-                new Text(
-                  '1000+ Submissions\n\$500 Prize Money\nDuration 30 Days',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 14.0,
-            ),
-            new Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                new Text(
-                  'Choose Contest Options',
-                  style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).accentColor),
-                ),
-                new Row(
-                  children: <Widget>[
-                    new Checkbox(
-                      value: true,
-                      onChanged: null,
-                    ),
-                    Text('Contest Free \$90')
-                  ],
-                ),
-                new Row(
-                  children: <Widget>[
-                    new Checkbox(
-                      value: false,
-                      onChanged: null,
-                    ),
-                    Text('Private Contest \$50')
-                  ],
-                )
-              ],
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                new RaisedButton(
-                  textColor: Colors.white,
-                  color: Theme.of(context).accentColor,
-                  onPressed: _previousStep,
-                  child: Text('Previous'),
-                ),
-                SizedBox(
-                  width: 10.0,
-                ),
-                new RaisedButton(
-                  textColor: Colors.white,
-                  color: Theme.of(context).accentColor,
-                  onPressed: _nextStep,
-                  child: Text('Next'),
-                ),
-              ],
-            )
-          ],
         ),
-      ),
-    );
+      );
+    } else if (_isPackageLoading) {
+      content = Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    return content;
   }
 
   Widget _buildStepThree() {
@@ -776,7 +802,29 @@ class _CreateContestState extends State<CreateContest> {
         title: Text('Create Contest'),
       ),
       drawer: SideDrawer(),
-      body: _buildBody(),
+      body: Center(
+        child: _buildBody(),
+      ), //_buildBody(),
     );
   }
+}
+
+class ContestType extends CreateContest {
+  final int id;
+  final String name;
+
+  ContestType({@required this.id, @required this.name});
+}
+
+class ContestPackage extends CreateContest {
+  final int id;
+  final String packageName;
+  final double prizeMoney;
+  final int minimumIdeaSubmission;
+
+  ContestPackage(
+      {@required this.id,
+      @required this.packageName,
+      @required this.prizeMoney,
+      @required this.minimumIdeaSubmission});
 }

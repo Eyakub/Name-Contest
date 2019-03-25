@@ -5,17 +5,17 @@ import '../widgets/ui_elements/contest_title.dart';
 import '../widgets/ui_elements/side_drawer.dart';
 import '../widgets/ui_elements/contest_day_left.dart';
 
-class ContestWishlist extends StatefulWidget {
+class ContestWishlistPage extends StatefulWidget {
   //final String contestType;
   //ContestWishlist(this.contestType);
 
   @override
   State<StatefulWidget> createState() {
-    return _ContestWishListState();
+    return _ContestWishListPageState();
   }
 }
 
-class _ContestWishListState extends State<ContestWishlist> {
+class _ContestWishListPageState extends State<ContestWishlistPage> {
   List<Map<String, dynamic>> _wishlistItems = [
     {
       "contest_title": "XYX",
@@ -55,7 +55,7 @@ class _ContestWishListState extends State<ContestWishlist> {
     return Card(
       child: Container(
         height: 107,
-        padding: EdgeInsets.only(top: 10, bottom: 10, left: 2, right: 6),
+        padding: EdgeInsets.only(top: 6, bottom: 10, left: 2, right: 6),
         child: Row(
           children: <Widget>[
             Flexible(

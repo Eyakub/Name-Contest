@@ -32,7 +32,7 @@ class ImageCarousel extends StatelessWidget {
                     image: NetworkImage(url),
                     height: 160.0,
                     fit: BoxFit.cover,
-                    placeholder: AssetImage('assets/images/default_image.png'),
+                    placeholder: AssetImage('assets/background.jpg'),
                   )
                 ),
             );

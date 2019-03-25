@@ -54,7 +54,7 @@ class SideDrawer extends StatelessWidget {
             leading: Icon(Icons.settings),
             title: Text("Settings"),
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.pushReplacementNamed(context, '/test');
             },
           ),
           ListTile(

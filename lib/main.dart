@@ -7,6 +7,8 @@ import './pages/contest_list.dart';
 import './pages/user_profile_page.dart';
 import './pages/contest_wishlist.dart';
 import './pages/contest_submissions.dart';
+import './pages/contest_details.dart';
+import './pages/test.dart';
 
 import './pages/create_contest.dart';
 import 'package:flutter/rendering.dart';
@@ -46,11 +48,13 @@ class _MyAppState extends State<MyApp> {
           '/': (BuildContext context) => SplashPage(_model),
           '/login': (BuildContext context) => LoginPage(_model),
           '/home': (BuildContext context) => HomePage(_model),
-          '/contests': (BuildContext context) => ContestListPage(_model),
+          '/contests': (BuildContext context) => ContestListPage(),
           '/userProfile':(BuildContext context) => UserProfilePage(),
           '/createContest': (BuildContext context) => CreateContest(),
-          '/contestWishlist': (BuildContext context) => ContestWishlist(),
+          '/contestDetails': (BuildContext context) => ContestDetailsPage(),
+          '/contestWishlist': (BuildContext context) => ContestWishlistPage(),
           '/contestSubmissions': (BuildContext context) => ContestSubmissionPage(),
+          '/test': (BuildContext context) => Test(),
         },
         onGenerateRoute: (RouteSettings settings) {
           return null;
