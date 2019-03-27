@@ -36,8 +36,6 @@ class _CreateContestState extends State<CreateContest> {
   List<Language> _languages = [];
   String selectedLanguage;
 
-
-
   // Show some different formats.
   final formats = {
     InputType.date: DateFormat('yyyy-MM-dd'),
@@ -48,20 +46,22 @@ class _CreateContestState extends State<CreateContest> {
   bool editable = true;
   DateTime date;
 
-  static String startDateString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  static String startDateString =
+      DateFormat('yyyy-MM-dd').format(DateTime.now());
   static DateTime startDate = DateTime.parse(startDateString);
   static DateTime endDate = startDate.add(new Duration(days: 10));
   static String endDateString = DateFormat('yyyy-MM-dd').format(endDate);
-  //var endDate = startDate.add(new Duration(days: 10));
-
-
-
-  //List<DropdownMenuItem<String>> _languages = [];
-  //var _languages = ['English', 'Bangla', 'Spanish'];
-  //var _language = 'English';
 
   int _value = 0;
   void _setvalue(int value) => setState(() => _value = value);
+
+  bool _unregisteredDomain = true;
+  void _setUnregisteredDomain(bool value) =>
+      setState(() => _unregisteredDomain = value);
+
+  bool _privateContest = false;
+  void _setPrivateContest(bool value) =>
+      setState(() => _privateContest = value);
 
   @override
   initState() {
@@ -102,7 +102,6 @@ class _CreateContestState extends State<CreateContest> {
       child: Text('Next'),
     );
   }
-
 
   ///STEP ONE CONTENT
   Future<Null> fetchContestType() {
@@ -171,7 +170,6 @@ class _CreateContestState extends State<CreateContest> {
     return column;
   }
 
-
   ///STEP TWO CONTENT
   Widget makePackageInfoList() {
     final list = <Widget>[];
@@ -220,7 +218,6 @@ class _CreateContestState extends State<CreateContest> {
     return List.from(_contestPackages);
   }
 
-
   Future<Null> fetchContestPackage() {
     setState(() {
       _isPackageLoading = true;
@@ -267,24 +264,18 @@ class _CreateContestState extends State<CreateContest> {
     );
   }
 
-
   ///STEP THREE CONTENT
-
 
   ///STEP FOUR CONTENT
 
-  
   /// Fetching Content Info
-  
+
   //country
-  Future<Null> fetchCountry(){
+  Future<Null> fetchCountry() {
     setState(() {
       _isCountryLoading = true;
     });
-    return http
-        .get(
-            'http://10.0.2.2:8000/api/v1/others/country/')
-        .then(
+    return http.get('http://10.0.2.2:8000/api/v1/others/country/').then(
       (http.Response response) {
         //print(response.body);
         final List<Country> fetchedCountryList = [];
@@ -307,7 +298,7 @@ class _CreateContestState extends State<CreateContest> {
             fetchedCountryList.add(country);
           },
         );
-        
+
         setState(
           () {
             _country = fetchedCountryList;
@@ -324,14 +315,11 @@ class _CreateContestState extends State<CreateContest> {
   }
 
   //Language
-    Future<Null> fetchLanguages(){
+  Future<Null> fetchLanguages() {
     setState(() {
       _isLanguageLoading = true;
     });
-    return http
-        .get(
-            'http://10.0.2.2:8000/api/v1/others/language/')
-        .then(
+    return http.get('http://10.0.2.2:8000/api/v1/others/language/').then(
       (http.Response response) {
         //print(response.body);
         final List<Language> fetchedLanguageList = [];
@@ -355,7 +343,7 @@ class _CreateContestState extends State<CreateContest> {
             fetchedLanguageList.add(language);
           },
         );
-        
+
         setState(
           () {
             _languages = fetchedLanguageList;
@@ -371,7 +359,46 @@ class _CreateContestState extends State<CreateContest> {
     return List.from(_languages);
   }
 
-  
+  Widget _buildDomainExtentionInput() {
+    if (false) {
+      return TextFormField(
+        //focusNode: _titleFocusNode,
+        decoration: InputDecoration(
+          labelText: 'Preferred Domain Extensions',
+          border: OutlineInputBorder(),
+        ),
+        //initialValue: product == null ? '' : product.title,
+        validator: (String value) {
+          //if(value.trim().length <= 0){
+          if (value.isEmpty || value.length < 5) {
+            return "Title is required and should be minimum 5 character.";
+          }
+        },
+        onSaved: (String value) {
+          //_formData['title'] = value;
+        },
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _buildCheckBoxUnregistered() {
+    if (false) {
+      return new Row(
+        children: <Widget>[
+          new Checkbox(
+            onChanged: _setUnregisteredDomain,
+            value: _unregisteredDomain,
+          ),
+          new Text('Unregistered Domain Only')
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
   void _nextStep() {
     setState(() {
       _currentStep = _currentStep + 1;
@@ -482,8 +509,8 @@ class _CreateContestState extends State<CreateContest> {
                   new Row(
                     children: <Widget>[
                       new Checkbox(
-                        value: false,
-                        onChanged: null,
+                        value: _privateContest,
+                        onChanged: _setPrivateContest,
                       ),
                       Text('Private Contest \$50')
                     ],
@@ -515,25 +542,29 @@ class _CreateContestState extends State<CreateContest> {
   Widget _buildStepThree() {
     return new Container(
       padding: EdgeInsets.all(10.0),
-      
       child: Form(
         key: _formKey,
         child: ListView(
           children: <Widget>[
             new Center(
-              child: 
-              new Text(
-              'Contest Information',
-              style: TextStyle(
+              child: new Text(
+                'Contest Information',
+                style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).accentColor,),
+                  color: Theme.of(context).accentColor,
+                ),
               ),
             ),
-            SizedBox(height: 20.0,),
+            SizedBox(
+              height: 20.0,
+            ),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Title', border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
+              ),
               validator: (String value) {
                 if (value.isEmpty) {
                   return "Title is required.";
@@ -543,10 +574,15 @@ class _CreateContestState extends State<CreateContest> {
                 //_formData['title'] = value;
               },
             ),
-            SizedBox(height: 6.0,),
+            SizedBox(
+              height: 6.0,
+            ),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
               validator: (String value) {
                 if (value.isEmpty) {
                   return "Description is required.";
@@ -556,31 +592,49 @@ class _CreateContestState extends State<CreateContest> {
                 //_formData['title'] = value;
               },
             ),
-            SizedBox(height: 6.0,),
-
+            SizedBox(
+              height: 6.0,
+            ),
             new DateTimePickerFormField(
               inputType: inputType,
               format: formats[inputType],
               editable: editable,
               decoration: InputDecoration(
-                  labelText: startDateString, hasFloatingPlaceholder: false, border: OutlineInputBorder()),
-              onChanged: (dt) => setState(() => date = dt),
-              onSaved: (DateTime value){
-
-              },
+                  labelText: startDateString,
+                  hasFloatingPlaceholder: false,
+                  border: OutlineInputBorder()),
+              onChanged: (dt) => setState(() {
+                    date = dt;
+                  }),
+              onSaved: (DateTime value) {},
             ),
-
-            SizedBox(height: 6.0,),
+            SizedBox(
+              height: 6.0,
+            ),
             new TextFormField(
               enabled: false,
               decoration: InputDecoration(
-                  labelText: endDateString, hasFloatingPlaceholder: false, border: OutlineInputBorder()),
+                  labelText: endDateString,
+                  hasFloatingPlaceholder: false,
+                  border: OutlineInputBorder()),
             ),
-            SizedBox(height: 6.0,),
+            SizedBox(
+              height: 6.0,
+            ),
+            _buildDomainExtentionInput(),
+            SizedBox(
+              height: 6.0,
+            ),
+            _buildCheckBoxUnregistered(),
+            SizedBox(
+              height: 6.0,
+            ),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration:
-                  InputDecoration(labelText: 'Preferred Domain Extensions', border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: 'Keywords Suggestion',
+                border: OutlineInputBorder(),
+              ),
               //initialValue: product == null ? '' : product.title,
               validator: (String value) {
                 //if(value.trim().length <= 0){
@@ -592,20 +646,15 @@ class _CreateContestState extends State<CreateContest> {
                 //_formData['title'] = value;
               },
             ),
-            SizedBox(height: 6.0,),
-            new Row(
-              children: <Widget>[
-                new Checkbox(
-                  onChanged: null,
-                  value: true,
-                ),
-                new Text('Unregistered Domain Only')
-              ],
+            SizedBox(
+              height: 6.0,
             ),
-            SizedBox(height: 6.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Keywords Suggestion', border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: 'Words To Avoid',
+                border: OutlineInputBorder(),
+              ),
               //initialValue: product == null ? '' : product.title,
               validator: (String value) {
                 //if(value.trim().length <= 0){
@@ -617,25 +666,15 @@ class _CreateContestState extends State<CreateContest> {
                 //_formData['title'] = value;
               },
             ),
-            SizedBox(height: 6.0,),
-            new TextFormField(
-              //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Words To Avoid', border: OutlineInputBorder(),),
-              //initialValue: product == null ? '' : product.title,
-              validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
-                }
-              },
-              onSaved: (String value) {
-                //_formData['title'] = value;
-              },
+            SizedBox(
+              height: 6.0,
             ),
-            SizedBox(height: 6.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Examples', border: OutlineInputBorder(),),
+              decoration: InputDecoration(
+                labelText: 'Examples',
+                border: OutlineInputBorder(),
+              ),
               //initialValue: product == null ? '' : product.title,
               validator: (String value) {
                 //if(value.trim().length <= 0){
@@ -653,6 +692,7 @@ class _CreateContestState extends State<CreateContest> {
                   margin: EdgeInsets.only(top: 10.0, bottom: 6.0),
                   child: new DropdownButton(
                     value: selectedLanguage,
+                    hint: Text('Language Preference'),
                     items: _languages.map((languageList) {
                       return new DropdownMenuItem(
                         child: new Text(languageList.languageName),
@@ -664,9 +704,7 @@ class _CreateContestState extends State<CreateContest> {
                         selectedLanguage = value;
                         //print('Selected: ' + selectedLanguage);
                       });
-                      
                     },
-                   
                   ),
                 );
               },
