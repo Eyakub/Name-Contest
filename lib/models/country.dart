@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Country{
-  final String country;
+  final String countryName;
 
-  Country({@required this.country});
+  Country({@required this.countryName});
 }

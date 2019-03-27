@@ -4,7 +4,7 @@ class HomeWinnerList extends StatelessWidget {
   Widget _buildCircleImage(BuildContext context, category) {
     return Container(
       height: 90,
-      width: 85,
+      width: 90,
       margin: EdgeInsets.all(10.0),
       decoration: new BoxDecoration(
         shape: BoxShape.circle,

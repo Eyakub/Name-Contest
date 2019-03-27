@@ -1,4 +1,6 @@
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../widgets/ui_elements/side_drawer.dart';
 class Test extends StatefulWidget {
   @override
@@ -8,64 +10,65 @@ class Test extends StatefulWidget {
 }
 
 class _TestState extends State<Test> {
-  int _value1 = 0;
-  int _value2 = 0;
+  // Show some different formats.
+  final formats = {
+    //InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
+    InputType.date: DateFormat('yyyy-MM-dd'),
+    //InputType.time: DateFormat("HH:mm"),
+  };
 
-  void _setvalue1(int value) => setState(() => _value1 = value);
-  void _setvalue2(int value) => setState(() => _value2 = value);
+  // Changeable in demo
+  InputType inputType = InputType.date;
+  bool editable = true;
+  DateTime date;
 
-  // Widget makeRadios() {
-  //   List<Widget> list = new List<Widget>();
+  
+  DateTime now = new DateTime.now();
+  String dateFormat =DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-  //   for (int i = 0; i < 3; i++) {
-  //     list.add(new Radio(value: i, groupValue: _value1, onChanged: _setvalue1));
-  //   }
-
-  //   Column column = new Column(
-  //     children: list,
-  //   );
-
-  //   return column;
-  // }
-
-  Widget makeRadioTiles() {
-    List<Widget> list = new List<Widget>();
-
-    for (int i = 0; i < 3; i++) {
-      list.add(new RadioListTile<int>(
-        value: i,
-        groupValue: _value2,
-        onChanged: _setvalue2,
-        activeColor: Colors.green,
-        //controlAffinity: ListTileControlAffinity.trailing,
-        title: new Text('Item: $i'),
-      ));
-    }
-
-    Column column = new Column(
-      children: list,
-    );
-    return column;
-  }
 
   @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Name here'),
-      ),
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: Text('hi')),
       drawer: SideDrawer(),
-      //hit Ctrl+space in intellij to know what are the options you can use in flutter widgets
-      body: new Container(
-        padding: new EdgeInsets.all(32.0),
-        child: new Center(
-          child: new Column(
-            children: <Widget>[
-              makeRadioTiles(),
-            ],
-          ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ListView(
+          children: <Widget>[
+            Text('Format: "${formats[inputType].pattern}"'),
+
+            //
+            // The widget.
+            //
+            DateTimePickerFormField(
+              inputType: inputType,
+              format: formats[inputType],
+              editable: editable,
+              decoration: InputDecoration(
+                  labelText: dateFormat, hasFloatingPlaceholder: false, border: OutlineInputBorder()),
+              onChanged: (dt) => setState(() => date = dt),
+            ),
+
+            Text('Date value: $date'),
+            SizedBox(height: 16.0),
+            CheckboxListTile(
+              title: Text('Date picker'),
+              value: inputType != InputType.time,
+              onChanged: (value) => updateInputType(date: value),
+            ),
+          
+            CheckboxListTile(
+              title: Text('Editable'),
+              value: editable,
+              onChanged: (value) => setState(() => editable = value),
+            ),
+          ],
         ),
-      ),
-    );
+      ));
+
+  void updateInputType({bool date}) {
+    
+    setState(() => inputType = InputType.date);
   }
 }
+

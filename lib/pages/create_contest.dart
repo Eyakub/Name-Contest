@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
+import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import '../widgets/ui_elements/side_drawer.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+
+import '../models/contest_type.dart';
+import '../models/contest_package.dart';
+import '../models/country.dart';
+import '../models/language.dart';
 
 class CreateContest extends StatefulWidget {
   @override
@@ -21,9 +27,38 @@ class _CreateContestState extends State<CreateContest> {
 
   bool _isContestTypeLoading = false;
   bool _isPackageLoading = false;
+  bool _isCountryLoading = false;
+  bool _isLanguageLoading = false;
 
   List<ContestType> _contestTypes = [];
   List<ContestPackage> _contestPackages = [];
+  List<Country> _country = [];
+  List<Language> _languages = [];
+  String selectedLanguage;
+
+
+
+  // Show some different formats.
+  final formats = {
+    InputType.date: DateFormat('yyyy-MM-dd'),
+  };
+
+  // Changeable in demo
+  InputType inputType = InputType.date;
+  bool editable = true;
+  DateTime date;
+
+  static String startDateString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  static DateTime startDate = DateTime.parse(startDateString);
+  static DateTime endDate = startDate.add(new Duration(days: 10));
+  static String endDateString = DateFormat('yyyy-MM-dd').format(endDate);
+  //var endDate = startDate.add(new Duration(days: 10));
+
+
+
+  //List<DropdownMenuItem<String>> _languages = [];
+  //var _languages = ['English', 'Bangla', 'Spanish'];
+  //var _language = 'English';
 
   int _value = 0;
   void _setvalue(int value) => setState(() => _value = value);
@@ -49,6 +84,27 @@ class _CreateContestState extends State<CreateContest> {
     return null;
   }
 
+  ///BUTTONS
+  Widget _previousButtom() {
+    return new RaisedButton(
+      textColor: Colors.white,
+      color: Theme.of(context).accentColor,
+      onPressed: _previousStep,
+      child: Text('Previous'),
+    );
+  }
+
+  Widget _nextButton() {
+    return new RaisedButton(
+      textColor: Colors.white,
+      color: Theme.of(context).accentColor,
+      onPressed: _nextStep,
+      child: Text('Next'),
+    );
+  }
+
+
+  ///STEP ONE CONTENT
   Future<Null> fetchContestType() {
     //print("Loading Contest Type");
     //var client = createHttpClient();
@@ -115,13 +171,16 @@ class _CreateContestState extends State<CreateContest> {
     return column;
   }
 
+
+  ///STEP TWO CONTENT
   Widget makePackageInfoList() {
     final list = <Widget>[];
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < _contestPackages.length; i++) {
+      int days = ((allContestPackage[i].maximumContestLength) / 24).round();
       list.add(
         new RaisedButton(
-          child: new Text('Budget'),
+          child: new Text(allContestPackage[i].packageName),
           textColor: Colors.white,
           shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(6.0),
@@ -132,7 +191,12 @@ class _CreateContestState extends State<CreateContest> {
       );
       list.add(
         new Text(
-          '200+ Submissions\n\$100 Prize Money\nDuration 10 Days',
+          allContestPackage[i].minimumIdeaSubmission.toString() +
+              '+ Submissions\n' +
+              (allContestPackage[i].prizeMoney).round().toString() +
+              '\$ Prize Money\nDuration ' +
+              days.toString() +
+              ' Days',
           style: TextStyle(
             fontSize: 15.0,
           ),
@@ -151,6 +215,11 @@ class _CreateContestState extends State<CreateContest> {
     );
     return column;
   }
+
+  List<ContestPackage> get allContestPackage {
+    return List.from(_contestPackages);
+  }
+
 
   Future<Null> fetchContestPackage() {
     setState(() {
@@ -173,7 +242,8 @@ class _CreateContestState extends State<CreateContest> {
         contestPackageListData.forEach(
           (dynamic contestPackageData) {
             contestPackageData = json.encode(contestPackageData).toString();
-            Map<String, dynamic> contestPackageMap = json.decode(contestPackageData);
+            Map<String, dynamic> contestPackageMap =
+                json.decode(contestPackageData);
             //print(contestTypeMap);
             final ContestPackage contestPackage = ContestPackage(
               id: contestPackageMap['id'],
@@ -181,6 +251,7 @@ class _CreateContestState extends State<CreateContest> {
               prizeMoney: contestPackageMap['prize_money'],
               minimumIdeaSubmission:
                   contestPackageMap['minimum_idea_submission'],
+              maximumContestLength: contestPackageMap['maximum_contest_length'],
             );
             fetchedContestPackageList.add(contestPackage);
           },
@@ -192,16 +263,122 @@ class _CreateContestState extends State<CreateContest> {
           },
         );
         //print("Contest Package Length: " + _contestPackages.length.toString());
-        
       },
     );
   }
 
+
+  ///STEP THREE CONTENT
+
+
+  ///STEP FOUR CONTENT
+
+  
+  /// Fetching Content Info
+  
+  //country
+  Future<Null> fetchCountry(){
+    setState(() {
+      _isCountryLoading = true;
+    });
+    return http
+        .get(
+            'http://10.0.2.2:8000/api/v1/others/country/')
+        .then(
+      (http.Response response) {
+        //print(response.body);
+        final List<Country> fetchedCountryList = [];
+        final List<dynamic> contestCountryData = json.decode(response.body);
+        if (contestCountryData == null) {
+          setState(() {
+            _isCountryLoading = false;
+          });
+          return;
+        }
+        contestCountryData.forEach(
+          (dynamic contestCountryData) {
+            contestCountryData = json.encode(contestCountryData).toString();
+            Map<String, dynamic> contestCountryMap =
+                json.decode(contestCountryData);
+            //print(contestTypeMap);
+            final Country country = Country(
+              countryName: contestCountryMap['name'],
+            );
+            fetchedCountryList.add(country);
+          },
+        );
+        
+        setState(
+          () {
+            _country = fetchedCountryList;
+            _isCountryLoading = false;
+          },
+        );
+        //print("Contest Package Length: " + _contestPackages.length.toString());
+      },
+    );
+  }
+
+  List<Country> get allCountry {
+    return List.from(_country);
+  }
+
+  //Language
+    Future<Null> fetchLanguages(){
+    setState(() {
+      _isLanguageLoading = true;
+    });
+    return http
+        .get(
+            'http://10.0.2.2:8000/api/v1/others/language/')
+        .then(
+      (http.Response response) {
+        //print(response.body);
+        final List<Language> fetchedLanguageList = [];
+        final List<dynamic> contestLanguageData = json.decode(response.body);
+        if (contestLanguageData == null) {
+          setState(() {
+            _isLanguageLoading = false;
+          });
+          return;
+        }
+        contestLanguageData.forEach(
+          (dynamic contestLanguageData) {
+            contestLanguageData = json.encode(contestLanguageData).toString();
+            Map<String, dynamic> contestLanguageMap =
+                json.decode(contestLanguageData);
+            //print(contestTypeMap);
+            final Language language = Language(
+              id: contestLanguageMap['id'],
+              languageName: contestLanguageMap['name'],
+            );
+            fetchedLanguageList.add(language);
+          },
+        );
+        
+        setState(
+          () {
+            _languages = fetchedLanguageList;
+            _isLanguageLoading = false;
+          },
+        );
+        //print("Contest Package Length: " + _languages.length.toString());
+      },
+    );
+  }
+
+  List<Language> get allLanguage {
+    return List.from(_languages);
+  }
+
+  
   void _nextStep() {
     setState(() {
       _currentStep = _currentStep + 1;
-      if(_currentStep == 2) {
-          fetchContestPackage();
+      if (_currentStep == 2) {
+        fetchContestPackage();
+      } else if (_currentStep == 3) {
+        fetchLanguages();
       }
     });
   }
@@ -239,12 +416,7 @@ class _CreateContestState extends State<CreateContest> {
                 new Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    new RaisedButton(
-                      textColor: Colors.white,
-                      color: Theme.of(context).accentColor,
-                      onPressed: _nextStep,
-                      child: Text('Next'),
-                    ),
+                    _nextButton(),
                   ],
                 )
               ],
@@ -267,7 +439,7 @@ class _CreateContestState extends State<CreateContest> {
 
   Widget _buildStepTwo() {
     Widget content;
-    if (_contestPackages.length > 0 && !_isPackageLoading) {      
+    if (_contestPackages.length > 0 && !_isPackageLoading) {
       content = Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -321,21 +493,11 @@ class _CreateContestState extends State<CreateContest> {
               new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new RaisedButton(
-                    textColor: Colors.white,
-                    color: Theme.of(context).accentColor,
-                    onPressed: _previousStep,
-                    child: Text('Previous'),
-                  ),
+                  _previousButtom(),
                   SizedBox(
                     width: 10.0,
                   ),
-                  new RaisedButton(
-                    textColor: Colors.white,
-                    color: Theme.of(context).accentColor,
-                    onPressed: _nextStep,
-                    child: Text('Next'),
-                  ),
+                  _nextButton(),
                 ],
               )
             ],
@@ -353,70 +515,72 @@ class _CreateContestState extends State<CreateContest> {
   Widget _buildStepThree() {
     return new Container(
       padding: EdgeInsets.all(10.0),
+      
       child: Form(
         key: _formKey,
         child: ListView(
           children: <Widget>[
+            new Center(
+              child: 
+              new Text(
+              'Contest Information',
+              style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).accentColor,),
+              ),
+            ),
+            SizedBox(height: 20.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Title'),
-              //initialValue: product == null ? '' : product.title,
+              decoration: InputDecoration(labelText: 'Title', border: OutlineInputBorder(),),
               validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
+                if (value.isEmpty) {
+                  return "Title is required.";
                 }
               },
               onSaved: (String value) {
                 //_formData['title'] = value;
               },
             ),
+            SizedBox(height: 6.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Description'),
-              //initialValue: product == null ? '' : product.title,
+              decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(),),
               validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
+                if (value.isEmpty) {
+                  return "Description is required.";
                 }
               },
               onSaved: (String value) {
                 //_formData['title'] = value;
               },
             ),
-            new TextFormField(
-              //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Start Date'),
-              //initialValue: product == null ? '' : product.title,
-              validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
-                }
-              },
-              onSaved: (String value) {
-                //_formData['title'] = value;
-              },
-            ),
-            new TextFormField(
-              //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'End Date'),
-              //initialValue: product == null ? '' : product.title,
-              validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
-                }
-              },
-              onSaved: (String value) {
-                //_formData['title'] = value;
+            SizedBox(height: 6.0,),
+
+            new DateTimePickerFormField(
+              inputType: inputType,
+              format: formats[inputType],
+              editable: editable,
+              decoration: InputDecoration(
+                  labelText: startDateString, hasFloatingPlaceholder: false, border: OutlineInputBorder()),
+              onChanged: (dt) => setState(() => date = dt),
+              onSaved: (DateTime value){
+
               },
             ),
+
+            SizedBox(height: 6.0,),
+            new TextFormField(
+              enabled: false,
+              decoration: InputDecoration(
+                  labelText: endDateString, hasFloatingPlaceholder: false, border: OutlineInputBorder()),
+            ),
+            SizedBox(height: 6.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
               decoration:
-                  InputDecoration(labelText: 'Preferred Domain Extensions'),
+                  InputDecoration(labelText: 'Preferred Domain Extensions', border: OutlineInputBorder(),),
               //initialValue: product == null ? '' : product.title,
               validator: (String value) {
                 //if(value.trim().length <= 0){
@@ -428,6 +592,7 @@ class _CreateContestState extends State<CreateContest> {
                 //_formData['title'] = value;
               },
             ),
+            SizedBox(height: 6.0,),
             new Row(
               children: <Widget>[
                 new Checkbox(
@@ -437,9 +602,10 @@ class _CreateContestState extends State<CreateContest> {
                 new Text('Unregistered Domain Only')
               ],
             ),
+            SizedBox(height: 6.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Keywords Suggestion'),
+              decoration: InputDecoration(labelText: 'Keywords Suggestion', border: OutlineInputBorder(),),
               //initialValue: product == null ? '' : product.title,
               validator: (String value) {
                 //if(value.trim().length <= 0){
@@ -451,9 +617,10 @@ class _CreateContestState extends State<CreateContest> {
                 //_formData['title'] = value;
               },
             ),
+            SizedBox(height: 6.0,),
             new TextFormField(
               //focusNode: _titleFocusNode,
-              decoration: InputDecoration(labelText: 'Words To Avoid'),
+              decoration: InputDecoration(labelText: 'Words To Avoid', border: OutlineInputBorder(),),
               //initialValue: product == null ? '' : product.title,
               validator: (String value) {
                 //if(value.trim().length <= 0){
@@ -463,6 +630,45 @@ class _CreateContestState extends State<CreateContest> {
               },
               onSaved: (String value) {
                 //_formData['title'] = value;
+              },
+            ),
+            SizedBox(height: 6.0,),
+            new TextFormField(
+              //focusNode: _titleFocusNode,
+              decoration: InputDecoration(labelText: 'Examples', border: OutlineInputBorder(),),
+              //initialValue: product == null ? '' : product.title,
+              validator: (String value) {
+                //if(value.trim().length <= 0){
+                if (value.isEmpty || value.length < 5) {
+                  return "Title is required and should be minimum 5 character.";
+                }
+              },
+              onSaved: (String value) {
+                //_formData['title'] = value;
+              },
+            ),
+            new FormField(
+              builder: (FormFieldState state) {
+                return Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 6.0),
+                  child: new DropdownButton(
+                    value: selectedLanguage,
+                    items: _languages.map((languageList) {
+                      return new DropdownMenuItem(
+                        child: new Text(languageList.languageName),
+                        value: languageList.id.toString(),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedLanguage = value;
+                        //print('Selected: ' + selectedLanguage);
+                      });
+                      
+                    },
+                   
+                  ),
+                );
               },
             ),
             SizedBox(
@@ -471,21 +677,11 @@ class _CreateContestState extends State<CreateContest> {
             new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                new RaisedButton(
-                  textColor: Colors.white,
-                  color: Theme.of(context).accentColor,
-                  onPressed: _previousStep,
-                  child: Text('Previous'),
-                ),
+                _previousButtom(),
                 SizedBox(
                   width: 10.0,
                 ),
-                new RaisedButton(
-                  textColor: Colors.white,
-                  color: Theme.of(context).accentColor,
-                  onPressed: _nextStep,
-                  child: Text('Next'),
-                ),
+                _nextButton(),
               ],
             ),
           ],
@@ -807,24 +1003,4 @@ class _CreateContestState extends State<CreateContest> {
       ), //_buildBody(),
     );
   }
-}
-
-class ContestType extends CreateContest {
-  final int id;
-  final String name;
-
-  ContestType({@required this.id, @required this.name});
-}
-
-class ContestPackage extends CreateContest {
-  final int id;
-  final String packageName;
-  final double prizeMoney;
-  final int minimumIdeaSubmission;
-
-  ContestPackage(
-      {@required this.id,
-      @required this.packageName,
-      @required this.prizeMoney,
-      @required this.minimumIdeaSubmission});
 }
