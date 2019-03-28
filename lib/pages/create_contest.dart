@@ -477,7 +477,9 @@ class _CreateContestState extends State<CreateContest> {
           }
         },
         onSaved: (String value) {
-          _formData['preferred_domain_extensions'] = value;
+          setState(() {
+           _formData['preferred_domain_extensions'] = value; 
+          });
         },
       );
     } else {
