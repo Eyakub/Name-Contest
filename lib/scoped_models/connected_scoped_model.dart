@@ -48,7 +48,7 @@ class ContestModel extends ConnectedProductsModel {
           id: contestId,
           title: contestData['title'],
           description: contestData['description'],
-          contestPrice: contestData['contestPrice'],
+          contestFee: contestData['contestFee'],
           endDate: contestData['endDate'],
           contestType: contestData['contestType'],
           startDate: contestData['startDate'],

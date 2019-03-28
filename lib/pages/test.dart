@@ -2,6 +2,7 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/ui_elements/side_drawer.dart';
+
 class Test extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -10,65 +11,42 @@ class Test extends StatefulWidget {
 }
 
 class _TestState extends State<Test> {
-  // Show some different formats.
-  final formats = {
-    //InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
-    InputType.date: DateFormat('yyyy-MM-dd'),
-    //InputType.time: DateFormat("HH:mm"),
-  };
-
-  // Changeable in demo
-  InputType inputType = InputType.date;
-  bool editable = true;
-  DateTime date;
-
-  
-  DateTime now = new DateTime.now();
-  String dateFormat =DateFormat('yyyy-MM-dd').format(DateTime.now());
-
+  Color _myColor = Colors.green;
+  String _myAccountState = "Account Enabled";
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text('hi')),
-      drawer: SideDrawer(),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: ListView(
-          children: <Widget>[
-            Text('Format: "${formats[inputType].pattern}"'),
-
-            //
-            // The widget.
-            //
-            DateTimePickerFormField(
-              inputType: inputType,
-              format: formats[inputType],
-              editable: editable,
-              decoration: InputDecoration(
-                  labelText: dateFormat, hasFloatingPlaceholder: false, border: OutlineInputBorder()),
-              onChanged: (dt) => setState(() => date = dt),
+        appBar: AppBar(title: Text('hi')),
+        drawer: SideDrawer(),
+        body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: new Scaffold(
+            appBar: new AppBar(
+              title: new Text("Manage Accounts"),
+              centerTitle: true,
             ),
-
-            Text('Date value: $date'),
-            SizedBox(height: 16.0),
-            CheckboxListTile(
-              title: Text('Date picker'),
-              value: inputType != InputType.time,
-              onChanged: (value) => updateInputType(date: value),
+            body: new Center(
+              child: new Column(
+                children: <Widget>[
+                  new Text(_myAccountState),
+                  new RaisedButton(
+                      child: new Text("Click Me"),
+                      color: _myColor,
+                      onPressed: () {
+                        setState(() {
+                          if (_myColor == Colors.green) {
+                            _myAccountState = "Account Disabled";
+                            _myColor = Colors.red;
+                          } else {
+                            _myAccountState = "Account Enabled";
+                            _myColor = Colors.green;
+                          }
+                        });
+                      })
+                ],
+              ),
             ),
-          
-            CheckboxListTile(
-              title: Text('Editable'),
-              value: editable,
-              onChanged: (value) => setState(() => editable = value),
-            ),
-          ],
+          ),
         ),
-      ));
-
-  void updateInputType({bool date}) {
-    
-    setState(() => inputType = InputType.date);
-  }
+      );
 }
-

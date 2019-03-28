@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../ui_elements/contest_prize.dart';
 import '../ui_elements/contest_title.dart';
-import '../../scoped_models/main_scoped_model.dart';
 import '../../models/contest.dart';
 import '../ui_elements/contest_end_date.dart';
 
@@ -24,7 +23,7 @@ class ContestCard extends StatelessWidget {
             SizedBox(
               height: 6.0,
             ),
-            ContestPrize(contest.contestPrice.toString()),
+            ContestPrize(contest.contestFee.toString()),
             SizedBox(
               height: 6.0,
             ),

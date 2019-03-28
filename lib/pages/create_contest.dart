@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:name_contest/models/contest.dart';
 import '../widgets/ui_elements/side_drawer.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -25,6 +26,7 @@ class _CreateContestState extends State<CreateContest> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int _currentStep = 1;
 
+  //loading state
   bool _isContestTypeLoading = false;
   bool _isPackageLoading = false;
   bool _isCountryLoading = false;
@@ -33,8 +35,26 @@ class _CreateContestState extends State<CreateContest> {
   List<ContestType> _contestTypes = [];
   List<ContestPackage> _contestPackages = [];
   List<Country> _country = [];
+  List<Contest> _contest = [];
   List<Language> _languages = [];
   String selectedLanguage;
+  final Map<String, dynamic> _formData = {
+    'title': null,
+    'description': null,
+    'start_date': null,
+    'end_date': null,
+    'preferred_domain_extensions': null,
+    'unregistered_domain_only': true,
+    'keyword_suggestions': null,
+    'words_to_avoid': null,
+    'examples': null,
+    'language_preferences': null,
+  };
+
+  // Check State variable
+  static var _contestIdCheck;
+  static var _packageIdCheck;
+  Color _color = Colors.blueGrey;
 
   // Show some different formats.
   final formats = {
@@ -45,15 +65,33 @@ class _CreateContestState extends State<CreateContest> {
   InputType inputType = InputType.date;
   bool editable = true;
   DateTime date;
+  static int daysCount = 0;
 
+  static int endDaysCount() {
+    if (_packageIdCheck == 1) {
+      daysCount = 10;
+    } else if (_packageIdCheck == 2) {
+      daysCount = 20;
+    } else if (_packageIdCheck == 3) {
+      daysCount = 30;
+    }
+    return daysCount;
+  }
+
+  //Start & End date calculation
   static String startDateString =
       DateFormat('yyyy-MM-dd').format(DateTime.now());
   static DateTime startDate = DateTime.parse(startDateString);
-  static DateTime endDate = startDate.add(new Duration(days: 10));
+  static DateTime endDate = startDate.add(new Duration(days: endDaysCount()));
   static String endDateString = DateFormat('yyyy-MM-dd').format(endDate);
 
-  int _value = 0;
-  void _setvalue(int value) => setState(() => _value = value);
+  ///contest type radiolist
+  ContestType selectContestType;
+  setSelectedContestType(ContestType contestType) {
+    setState(() {
+      selectContestType = contestType;
+    });
+  }
 
   bool _unregisteredDomain = true;
   void _setUnregisteredDomain(bool value) =>
@@ -65,48 +103,32 @@ class _CreateContestState extends State<CreateContest> {
 
   @override
   initState() {
+    _contestIdCheck = null;
+    _packageIdCheck = null;
     fetchContestType();
-    //print(_contestTypes.length);
+    //_isNextButtonDisabled = true;
     super.initState();
   }
 
-  void buttonPressState(String btnName) {
-    if (btnName == 'Budget') {
+  bool _buttonPressState(_packageIdCheck) {
+    if (_packageIdCheck == 1) {
       if (pressAttention == false) {
-        pressAttention = true;
-      } else {
-        pressAttention = false;
+        return pressAttention = true;
+      }
+    } else if (_packageIdCheck == 2) {
+      if (pressAttention == false) {
+        return pressAttention = true;
+      }
+    } else if (_packageIdCheck == 3) {
+      if (pressAttention == false) {
+        return pressAttention = true;
       }
     }
-  }
-
-  void test() {
-    return null;
-  }
-
-  ///BUTTONS
-  Widget _previousButtom() {
-    return new RaisedButton(
-      textColor: Colors.white,
-      color: Theme.of(context).accentColor,
-      onPressed: _previousStep,
-      child: Text('Previous'),
-    );
-  }
-
-  Widget _nextButton() {
-    return new RaisedButton(
-      textColor: Colors.white,
-      color: Theme.of(context).accentColor,
-      onPressed: _nextStep,
-      child: Text('Next'),
-    );
+    return false;
   }
 
   ///STEP ONE CONTENT
   Future<Null> fetchContestType() {
-    //print("Loading Contest Type");
-    //var client = createHttpClient();
     setState(() {
       _isContestTypeLoading = true;
     });
@@ -114,9 +136,7 @@ class _CreateContestState extends State<CreateContest> {
         .get('http://10.0.2.2:8000/api/v1/contest/contest-type/?format=json')
         .then((http.Response response) {
       final List<ContestType> fetchedContestTypeList = [];
-      //print(json.decode(response.body));
       final List<dynamic> contestTypeListData = json.decode(response.body);
-      //print(contestTypeListData);
       if (contestTypeListData == null) {
         setState(() {
           _isContestTypeLoading = false;
@@ -127,14 +147,12 @@ class _CreateContestState extends State<CreateContest> {
       contestTypeListData.forEach((dynamic contestTypeData) {
         contestTypeData = json.encode(contestTypeData).toString();
         Map<String, dynamic> contestTypeMap = json.decode(contestTypeData);
-        //print(contestTypeMap);
         final ContestType contestType =
             ContestType(id: contestTypeMap['id'], name: contestTypeMap['name']);
         fetchedContestTypeList.add(contestType);
       });
       setState(() {
         _contestTypes = fetchedContestTypeList;
-        print(_contestTypes);
         _isContestTypeLoading = false;
       });
     });
@@ -144,22 +162,22 @@ class _CreateContestState extends State<CreateContest> {
     return List.from(_contestTypes);
   }
 
-  List<ContestType> get displayContestTypes {
-    return List.from(_contestTypes);
-  }
-
   Widget makeRadioList() {
     List<Widget> list = new List<Widget>();
-
-    for (int i = 0; i < _contestTypes.length; i++) {
+    for (ContestType contestType in _contestTypes) {
       list.add(
-        new RadioListTile(
-          value: i,
-          groupValue: _value,
-          onChanged: _setvalue,
-          activeColor: Colors.green,
-          //controlAffinity: ListTileControlAffinity.leading,
-          title: Text(allContestType[i].name),
+        RadioListTile(
+          value: contestType,
+          groupValue: selectContestType,
+          title: Text(contestType.name),
+          onChanged: (currentContestType) {
+            //print('Current Contest Type: ${contestType.id}');
+            setSelectedContestType(currentContestType);
+            setState(() {
+              _contestIdCheck = contestType.id;
+            });
+          },
+          selected: selectContestType == contestType,
         ),
       );
     }
@@ -174,24 +192,38 @@ class _CreateContestState extends State<CreateContest> {
   Widget makePackageInfoList() {
     final list = <Widget>[];
 
-    for (int i = 0; i < _contestPackages.length; i++) {
-      int days = ((allContestPackage[i].maximumContestLength) / 24).round();
+    for (ContestPackage contestPackage in _contestPackages) {
+      int days = ((contestPackage.maximumContestLength) / 24).round();
       list.add(
         new RaisedButton(
-          child: new Text(allContestPackage[i].packageName),
+          child: new Text(contestPackage.packageName),
           textColor: Colors.white,
           shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(6.0),
           ),
-          color: pressAttention ? Colors.cyan : Colors.transparent,
-          onPressed: () => setState(() => pressAttention = !pressAttention),
+          color: _color,
+          onPressed: () {
+            setState(() {
+              _packageIdCheck = contestPackage.id;
+              if (_packageIdCheck == 1) {
+                _color = Colors.green;
+              } else if (_packageIdCheck == 2) {
+                _color = Colors.green;
+              } else if (_packageIdCheck == 3) {
+                _color = Colors.green;
+              }
+            });
+            //print('Pressed ${contestPackage.id}');
+            //print('Package current ID: $_packageIdCheck');
+            //print('Private Contest: $_privateContest');
+          },
         ),
       );
       list.add(
         new Text(
-          allContestPackage[i].minimumIdeaSubmission.toString() +
+          contestPackage.minimumIdeaSubmission.toString() +
               '+ Submissions\n' +
-              (allContestPackage[i].prizeMoney).round().toString() +
+              (contestPackage.prizeMoney).round().toString() +
               '\$ Prize Money\nDuration ' +
               days.toString() +
               ' Days',
@@ -265,6 +297,76 @@ class _CreateContestState extends State<CreateContest> {
   }
 
   ///STEP THREE CONTENT
+  Future<Null> addContestInfo(
+      String title,
+      String description,
+      String startDate,
+      String endDate,
+      int contestFee,
+      int privateContestFee,
+      String domainExtension,
+      bool unregisteredDomainOnly,
+      String keywordSuggestions,
+      String wordsToAvoid,
+      String example,
+      String languagePreference) {
+    //_isLoading = true;
+    final Map<String, dynamic> contestData = {
+      'title': title,
+      'description': description,
+      'start_date': startDate,
+      'end_date': endDate,
+      'preferred_domain_extensions': domainExtension,
+      'unregistered_domain_only': unregisteredDomainOnly,
+      'keyword_suggestions': keywordSuggestions,
+      'words_to_avoid': wordsToAvoid,
+      'examples': example,
+      'language_preferences': languagePreference
+    };
+    return http
+        .post('https://flutter-app-9488a.firebaseio.com/products.json',
+            body: json.encode(contestData))
+        .then((http.Response response) {
+      //_isLoading = false;
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      //print(responseData);
+      final Contest contest = Contest(
+        id: responseData['name'],
+        title: title,
+        description: description,
+        startDate: startDate,
+        endDate: endDate,
+        contestFee: null,
+        privateContestFee: privateContestFee,
+        contestType: null,
+        package: null,
+        keywordSuggestion: keywordSuggestions,
+        examples: example,
+        languagePreferences: languagePreference,
+        wordsToAvoid: wordsToAvoid,
+      );
+
+      _contest.add(contest);
+    });
+  }
+
+  void _saveRaisedButton(Function addProduct) {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
+    addProduct(
+      _formData['title'],
+      _formData['description'],
+      _formData['start_date'],
+      _formData['end_date'],
+      _formData['preferred_domain_extensions'],
+      _formData['unregistered_domain_only'],
+      _formData['keyword_suggestions'],
+      _formData['words_to_avoid'],
+      _formData['language_preferences'],
+    ).then((_) => Navigator.pushReplacementNamed(context, '/contests'));
+  }
 
   ///STEP FOUR CONTENT
 
@@ -360,7 +462,7 @@ class _CreateContestState extends State<CreateContest> {
   }
 
   Widget _buildDomainExtentionInput() {
-    if (false) {
+    if (_contestIdCheck == 2 || _contestIdCheck == 3 || _contestIdCheck == 5) {
       return TextFormField(
         //focusNode: _titleFocusNode,
         decoration: InputDecoration(
@@ -375,7 +477,7 @@ class _CreateContestState extends State<CreateContest> {
           }
         },
         onSaved: (String value) {
-          //_formData['title'] = value;
+          _formData['preferred_domain_extensions'] = value;
         },
       );
     } else {
@@ -384,7 +486,7 @@ class _CreateContestState extends State<CreateContest> {
   }
 
   Widget _buildCheckBoxUnregistered() {
-    if (false) {
+    if (_contestIdCheck == 2 || _contestIdCheck == 3 || _contestIdCheck == 5) {
       return new Row(
         children: <Widget>[
           new Checkbox(
@@ -399,6 +501,25 @@ class _CreateContestState extends State<CreateContest> {
     }
   }
 
+  ///BUTTONS
+  Widget _previousButtom() {
+    return new RaisedButton(
+      textColor: Colors.white,
+      color: Theme.of(context).accentColor,
+      onPressed: _previousStep,
+      child: Text('Previous'),
+    );
+  }
+
+  Widget _nextButton() {
+    return new RaisedButton(
+      textColor: Colors.white,
+      color: Theme.of(context).accentColor,
+      onPressed: _nextStep,
+      child: Text('Next'),
+    );
+  }
+
   void _nextStep() {
     setState(() {
       _currentStep = _currentStep + 1;
@@ -406,6 +527,8 @@ class _CreateContestState extends State<CreateContest> {
         fetchContestPackage();
       } else if (_currentStep == 3) {
         fetchLanguages();
+      } else if(_currentStep == 4){
+        print(_formData);
       }
     });
   }
@@ -571,13 +694,16 @@ class _CreateContestState extends State<CreateContest> {
                 }
               },
               onSaved: (String value) {
-                //_formData['title'] = value;
+                setState(() {
+                 _formData['title'] = value; 
+                });
               },
             ),
             SizedBox(
               height: 6.0,
             ),
             new TextFormField(
+              maxLines: 2,
               //focusNode: _titleFocusNode,
               decoration: InputDecoration(
                 labelText: 'Description',
@@ -589,7 +715,9 @@ class _CreateContestState extends State<CreateContest> {
                 }
               },
               onSaved: (String value) {
-                //_formData['title'] = value;
+                setState(() {
+                 _formData['description'] = value; 
+                });
               },
             ),
             SizedBox(
@@ -606,7 +734,11 @@ class _CreateContestState extends State<CreateContest> {
               onChanged: (dt) => setState(() {
                     date = dt;
                   }),
-              onSaved: (DateTime value) {},
+              onSaved: (DateTime value) {
+                setState(() {
+                 _formData['start_date'] = value; 
+                });
+              },
             ),
             SizedBox(
               height: 6.0,
@@ -617,6 +749,11 @@ class _CreateContestState extends State<CreateContest> {
                   labelText: endDateString,
                   hasFloatingPlaceholder: false,
                   border: OutlineInputBorder()),
+              onSaved: (String value) {
+                setState(() {
+                 _formData['end_date'] = value; 
+                });
+              },
             ),
             SizedBox(
               height: 6.0,
@@ -630,60 +767,42 @@ class _CreateContestState extends State<CreateContest> {
               height: 6.0,
             ),
             new TextFormField(
-              //focusNode: _titleFocusNode,
               decoration: InputDecoration(
                 labelText: 'Keywords Suggestion',
                 border: OutlineInputBorder(),
               ),
-              //initialValue: product == null ? '' : product.title,
-              validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
-                }
-              },
               onSaved: (String value) {
-                //_formData['title'] = value;
+                setState(() {
+                 _formData['keyword_suggestions'] = value; 
+                });
               },
             ),
             SizedBox(
               height: 6.0,
             ),
             new TextFormField(
-              //focusNode: _titleFocusNode,
               decoration: InputDecoration(
                 labelText: 'Words To Avoid',
                 border: OutlineInputBorder(),
               ),
-              //initialValue: product == null ? '' : product.title,
-              validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
-                }
-              },
               onSaved: (String value) {
-                //_formData['title'] = value;
+                setState(() {
+                 _formData['words_to_avoid'] = value; 
+                });
               },
             ),
             SizedBox(
               height: 6.0,
             ),
             new TextFormField(
-              //focusNode: _titleFocusNode,
               decoration: InputDecoration(
                 labelText: 'Examples',
                 border: OutlineInputBorder(),
               ),
-              //initialValue: product == null ? '' : product.title,
-              validator: (String value) {
-                //if(value.trim().length <= 0){
-                if (value.isEmpty || value.length < 5) {
-                  return "Title is required and should be minimum 5 character.";
-                }
-              },
               onSaved: (String value) {
-                //_formData['title'] = value;
+                setState(() {
+                 _formData['examples'] = value; 
+                });
               },
             ),
             new FormField(
@@ -702,6 +821,7 @@ class _CreateContestState extends State<CreateContest> {
                     onChanged: (value) {
                       setState(() {
                         selectedLanguage = value;
+                        //_formData['language_preferences'] = value;
                         //print('Selected: ' + selectedLanguage);
                       });
                     },
@@ -1007,7 +1127,9 @@ class _CreateContestState extends State<CreateContest> {
               new RaisedButton(
                 textColor: Colors.white,
                 color: Theme.of(context).accentColor,
-                onPressed: test,
+                onPressed: () {
+                  _saveRaisedButton(addContestInfo);
+                },
                 child: Text('Submit'),
               ),
             ],
