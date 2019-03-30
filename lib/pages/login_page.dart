@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../scoped_models/main_scoped_model.dart';
+import 'package:http/http.dart' as http;
+import '../models/login.dart';
 
 class LoginPage extends StatefulWidget {
   final MainModel model;
@@ -9,81 +14,82 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  List<LoginModel> _loginUserData = [];
+
+  TextEditingController user = new TextEditingController();
+  TextEditingController pass = new TextEditingController();
+
+  bool _isLoginLoading = false;
+  String msg = '';
+  var datauser;
+
+  Future<Null> getUserData() async {
+    var getToken = datauser.toString();
+
+    return http.get(
+      'http://10.0.2.2:8000/api/v1/account/user/',
+      headers: {HttpHeaders.authorizationHeader: getToken},
+    ).then((http.Response response) {
+      final List<LoginModel> fetchUserData = [];
+      final List<dynamic> userData = json.decode(response.body);
+      if (userData == null) {
+        setState(() {
+          _isLoginLoading = false;
+        });
+        return;
+      }
+      userData.forEach(
+        (dynamic userData) {
+          userData = json.encode(userData).toString();
+          Map<String, dynamic> userDataMap = json.decode(userData);
+          //print(contestTypeMap);
+          final LoginModel loginModel = LoginModel(
+            userId: userDataMap['id'],
+            username: userDataMap['username'],
+            email: userDataMap['email'],
+            firstName: userDataMap['firstName'],
+            gender: userDataMap['gender'],
+            mNumber: userDataMap['mNumber'],
+          );
+          fetchUserData.add(loginModel);
+        },
+      );
+      //print(fetchUserData);
+      setState(
+        () {
+          _loginUserData = fetchUserData;
+          _isLoginLoading = false;
+        },
+      );
+      print('Length: ' + _loginUserData.length.toString());
+    });
+  }
+
+  Future<String> _login() async {
+    final response = await http
+        .post('http://10.0.2.2:8000/api/v1/account/authenticate/', body: {
+      'username': user.text,
+      'password': pass.text,
+    });
+
+    var temp = json.decode(response.body);
+    datauser = temp['token'];
+    //Rprint(datauser);
+    if (datauser.length == 0) {
+      setState(() {
+        msg = 'Login Failed';
+      });
+    } else {
+      setState(() {
+        datauser = json.decode(response.body);
+      });
+    }
+    getUserData();
+    return datauser;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final logo = Hero(
-      tag: 'hero',
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        radius: 48.0,
-        child: Image.asset('assets/logo.png'),
-      ),
-    );
-
-    final email = TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      autofocus: false,
-      initialValue: 'eyakub@gmail.com',
-      decoration: InputDecoration(
-        hintText: 'Email',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      ),
-    );
-
-    final password = TextFormField(
-      autofocus: false,
-      initialValue: 'some password',
-      obscureText: true,
-      decoration: InputDecoration(
-        hintText: 'Password',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      ),
-    );
-
-    final loginButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        onPressed: () {
-          Navigator.pushReplacementNamed(context, '/home');
-        },
-        padding: EdgeInsets.all(12),
-        color: Colors.lightBlueAccent,
-        child: Text('Log In', style: TextStyle(color: Colors.white)),
-      ),
-    );
-
-    final forgotLabel = FlatButton(
-      child: Text(
-        'Forgot password?',
-        style: TextStyle(color: Colors.black54),
-      ),
-      onPressed: () {},
-    );
-
-    // return Scaffold(
-    //   backgroundColor: Colors.white,
-    //   body: Center(
-    //     child: ListView(
-    //       shrinkWrap: true,
-    //       padding: EdgeInsets.only(left: 24.0, right: 24.0),
-    //       children: <Widget>[
-    //         logo,
-    //         SizedBox(height: 48.0),
-    //         email,
-    //         SizedBox(height: 8.0),
-    //         password,
-    //         SizedBox(height: 24.0),
-    //         loginButton,
-    //         forgotLabel
-    //       ],
-    //     ),
-    //   ),
-    // );
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
         body: Column(
@@ -120,6 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: <Widget>[
                     TextField(
+                      controller: user,
                       decoration: InputDecoration(
                           labelText: 'EMAIL',
                           labelStyle: TextStyle(
@@ -131,6 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 20.0),
                     TextField(
+                      controller: pass,
                       decoration: InputDecoration(
                           labelText: 'PASSWORD',
                           labelStyle: TextStyle(
@@ -166,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                         elevation: 7.0,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacementNamed(context, '/home');
+                            _login();
                           },
                           child: Center(
                             child: Text(
@@ -179,6 +187,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
+                    ),
+                    Text(
+                      msg,
+                      style: TextStyle(fontSize: 20.0, color: Colors.red),
                     ),
                     SizedBox(height: 20.0),
                   ],

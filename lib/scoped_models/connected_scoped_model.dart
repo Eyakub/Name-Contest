@@ -8,13 +8,15 @@ import '../models/user.dart';
 import '../models/winner.dart';
 import '../models/contest.dart';
 
+
 class ConnectedProductsModel extends Model {
   List<Contest> _contests = [];
   int _selContestIndex;
+  bool _isContestListLoading = false;
 }
 
 class ContestModel extends ConnectedProductsModel {
-  List<Contest> get displayContests {
+  List<Contest> get allContests {
     return List.from(_contests);
   }
 
@@ -29,17 +31,19 @@ class ContestModel extends ConnectedProductsModel {
     return _contests[selectedContestIndex];
   }
 
-  Future<Null> fetchContest() {
+  Future<Null> fetchContestList() {
+    _isContestListLoading = true;
     notifyListeners();
     return http
-        .get('https://flutter-app-9488a.firebaseio.com/contests.json')
+        .get('http://10.0.2.2:8000/api/v1/contest/contest/')
         .then((http.Response response) {
       final List<Contest> fetchedContestList = [];
-      //print(json.decode(response.body));
+      print(json.decode(response.body));
 
       final Map<String, dynamic> contestListData = json.decode(response.body);
 
       if (contestListData == null) {
+        _isContestListLoading = false;
         notifyListeners();
         return;
       }
@@ -49,14 +53,17 @@ class ContestModel extends ConnectedProductsModel {
           title: contestData['title'],
           description: contestData['description'],
           contestFee: contestData['contestFee'],
+          prizeMoney: contestData['prizeMoney'],
           endDate: contestData['endDate'],
           contestType: contestData['contestType'],
           startDate: contestData['startDate'],
+          privateContest: contestData['privateContest'],
           package: contestData['package'],
         );
         fetchedContestList.add(contest);
       });
       _contests = fetchedContestList;
+      print(fetchedContestList);
       notifyListeners();
     });
   }

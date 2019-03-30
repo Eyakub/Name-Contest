@@ -3,7 +3,7 @@ import 'package:scoped_model/scoped_model.dart';
 import './pages/login_page.dart';
 import './pages/signup.dart';
 import './pages/home_page.dart';
-//import './pages/splash_page.dart';
+import './pages/splash_page.dart';
 import './pages/contest_list.dart';
 import './pages/user_profile_page.dart';
 import './pages/contest_wishlist.dart';
@@ -45,11 +45,11 @@ class _MyAppState extends State<MyApp> {
           fontFamily: 'Nunito',
         ),
         routes: {
-          // '/': (BuildContext context) => SplashPage(_model),
-          '/': (BuildContext context) => LoginPage(_model),
+          '/': (BuildContext context) => SplashPage(_model),
+          '/login': (BuildContext context) => LoginPage(_model),
           '/signup': (BuildContext context) => SignupPage(),
           '/home': (BuildContext context) => HomePage(_model),
-          '/contests': (BuildContext context) => ContestListPage(),
+          '/contests': (BuildContext context) => ContestListPage(_model),
           '/userProfile': (BuildContext context) => UserProfilePage(),
           '/createContest': (BuildContext context) => CreateContest(),
           '/contestDetails': (BuildContext context) => ContestDetailsPage(),

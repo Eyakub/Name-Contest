@@ -18,9 +18,10 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
-    Timer(Duration(milliseconds: 2000), () {
-      Navigator.pushReplacementNamed(context, "/home");
+    Timer(Duration(milliseconds: 1000), () {
+      Navigator.pushReplacementNamed(context, "/login");
     });
+    super.initState();
   }
 
   DecorationImage _buildBackgroundImage() {

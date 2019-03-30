@@ -10,6 +10,8 @@ class Contest{
   final String startDate;
   final String endDate;
   int privateContestFee;
+  bool privateContest;
+  int prizeMoney;
   String keywordSuggestion;
   String wordsToAvoid;
   String examples;
@@ -25,6 +27,8 @@ class Contest{
     @required this.description,
     @required this.startDate,
     @required this.endDate,
+    this.prizeMoney,
+    this.privateContest,
     this.privateContestFee,
     this.keywordSuggestion,
     this.wordsToAvoid,

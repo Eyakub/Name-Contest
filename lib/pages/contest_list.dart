@@ -6,10 +6,11 @@ import '../widgets/ui_elements/side_drawer.dart';
 import '../widgets/ui_elements/contest_day_left.dart';
 
 import '../pages/contest_details.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class ContestListPage extends StatefulWidget {
-  //final String contestType;
-  //ContestWishlist(this.contestType);
+  final MainModel model;
+  ContestListPage(this.model);
 
   @override
   State<StatefulWidget> createState() {
@@ -57,7 +58,7 @@ class _ContestWishlistPageState extends State<ContestListPage> {
   //   return Navigator.pushNamed<bool>(context, '/contestDetails');
   // }
 
-  Widget _buildWishlistItem(Map<String, dynamic> wishlistItem) {
+  Widget _buildContestListItem(Map<String, dynamic> wishlistItem) {
     return Card(
       child: Container(
         height: 107,
@@ -127,10 +128,10 @@ class _ContestWishlistPageState extends State<ContestListPage> {
     );
   }
 
-  Widget _buildContestWishlist() {
+  Widget _buildContestList() {
     return new ListView.builder(
       itemBuilder: (BuildContext context, int index) =>
-          _buildWishlistItem(_wishlistItems[index]),
+          _buildContestListItem(_wishlistItems[index]),
       itemCount: _wishlistItems.length,
     );
   }
@@ -139,13 +140,13 @@ class _ContestWishlistPageState extends State<ContestListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Wishlist'),
+        title: Text('Contest List'),
       ),
       drawer: SideDrawer(),
       body: Padding(
         padding:
             EdgeInsets.only(top: 14.0, bottom: 14.0, left: 10.0, right: 10.0),
-        child: _buildContestWishlist(),
+        child: _buildContestList(),
       ),
     );
   }

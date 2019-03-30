@@ -27,7 +27,7 @@ class Products extends StatelessWidget {
     print('[products widget] build');
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
-        return _buildContestList(model.displayContests);
+        return _buildContestList();
       },
     );
   }
