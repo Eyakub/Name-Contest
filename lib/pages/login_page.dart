@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../scoped_models/main_scoped_model.dart';
 import 'package:http/http.dart' as http;
-import '../models/login.dart';
+import '../models/user.dart';
 
 class LoginPage extends StatefulWidget {
   final MainModel model;
@@ -14,78 +14,56 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  List<LoginModel> _loginUserData = [];
+  static User user;
 
-  TextEditingController user = new TextEditingController();
+  TextEditingController email = new TextEditingController();
   TextEditingController pass = new TextEditingController();
 
   bool _isLoginLoading = false;
   String msg = '';
   var datauser;
 
-  Future<Null> getUserData() async {
-    var getToken = datauser.toString();
-
-    return http.get(
-      'http://10.0.2.2:8000/api/v1/account/user/',
-      headers: {HttpHeaders.authorizationHeader: getToken},
-    ).then((http.Response response) {
-      final List<LoginModel> fetchUserData = [];
-      final List<dynamic> userData = json.decode(response.body);
-      if (userData == null) {
-        setState(() {
-          _isLoginLoading = false;
-        });
-        return;
-      }
-      userData.forEach(
-        (dynamic userData) {
-          userData = json.encode(userData).toString();
-          Map<String, dynamic> userDataMap = json.decode(userData);
-          //print(contestTypeMap);
-          final LoginModel loginModel = LoginModel(
-            userId: userDataMap['id'],
-            username: userDataMap['username'],
-            email: userDataMap['email'],
-            firstName: userDataMap['firstName'],
-            gender: userDataMap['gender'],
-            mNumber: userDataMap['mNumber'],
-          );
-          fetchUserData.add(loginModel);
-        },
-      );
-      //print(fetchUserData);
-      setState(
-        () {
-          _loginUserData = fetchUserData;
-          _isLoginLoading = false;
-        },
-      );
-      print('Length: ' + _loginUserData.length.toString());
-    });
-  }
-
-  Future<String> _login() async {
+  void _login() async {
+    _isLoginLoading = true;
     final response = await http
         .post('http://10.0.2.2:8000/api/v1/account/authenticate/', body: {
-      'username': user.text,
+      'username': email.text,
       'password': pass.text,
     });
 
-    var temp = json.decode(response.body);
-    datauser = temp['token'];
-    //Rprint(datauser);
-    if (datauser.length == 0) {
+    Map<dynamic, dynamic> userDataMap = json.decode(response.body);
+    //print(userDataMap);
+    //print(userDataMap['token']);
+    datauser = userDataMap['token'];
+    print('User: ' + userDataMap['user']['id'].toString());
+    //print('UserID ' + userDataMap['user']);
+    if (userDataMap == null) {
       setState(() {
-        msg = 'Login Failed';
+        _isLoginLoading = false;
       });
-    } else {
-      setState(() {
-        datauser = json.decode(response.body);
-      });
+      return;
     }
-    getUserData();
-    return datauser;
+    user = User(
+      id: int.parse(userDataMap['user']['id'].toString()),
+      email: userDataMap['user']['email'],
+      first_name: userDataMap['user']['first_name'],
+      last_name: userDataMap['user']['last_name'],
+      gender: userDataMap['user']['gender'],
+      phone_no: userDataMap['user']['phone_no'],
+      balance: userDataMap['user']['balance'],
+    );
+
+    setState(() {
+      _isLoginLoading = false;
+    });
+    widget.model.setToken = datauser;
+    widget.model.setUser = user;
+
+    if (datauser == null) {
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      Navigator.pushReplacementNamed(context, '/home');
+    }
   }
 
   @override
@@ -126,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: <Widget>[
                     TextField(
-                      controller: user,
+                      controller: email,
                       decoration: InputDecoration(
                           labelText: 'EMAIL',
                           labelStyle: TextStyle(
@@ -175,6 +153,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: GestureDetector(
                           onTap: () {
                             _login();
+
+                            //Navigator.pushReplacementNamed(context, '/home');
                           },
                           child: Center(
                             child: Text(

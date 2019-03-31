@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../scoped_models/main_scoped_model.dart';
 
 class SideDrawer extends StatelessWidget {
+  final MainModel model;
+  SideDrawer(this.model);
 
   @override
   Widget build(BuildContext context) {
@@ -8,8 +11,8 @@ class SideDrawer extends StatelessWidget {
       child: ListView(
         children: <Widget>[
           UserAccountsDrawerHeader(
-            accountName: Text("Eyakub Sorkar"),
-            accountEmail: Text("eyakubsorkar@gmail.com"),
+            accountName: Text(model.getUser.first_name),
+            accountEmail: Text(model.getUser.email),
             currentAccountPicture: CircleAvatar(
               backgroundImage: NetworkImage(
                             'https://yt3.ggpht.com/a-/AAuE7mCQh1zjDzo3kjPz4F_VxhTTwOeoCtQwPdfh4Q=s900-mo-c-c0xffffffff-rj-k-no'),

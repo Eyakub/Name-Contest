@@ -13,6 +13,9 @@ class ConnectedProductsModel extends Model {
   List<Contest> _contests = [];
   int _selContestIndex;
   bool _isContestListLoading = false;
+
+  User _currentUser;
+  String _token;
 }
 
 class ContestModel extends ConnectedProductsModel {
@@ -63,7 +66,7 @@ class ContestModel extends ConnectedProductsModel {
         fetchedContestList.add(contest);
       });
       _contests = fetchedContestList;
-      print(fetchedContestList);
+      //print(fetchedContestList);
       notifyListeners();
     });
   }
@@ -71,4 +74,18 @@ class ContestModel extends ConnectedProductsModel {
 
 class WinnerModel extends ConnectedProductsModel {}
 
-class UserModel extends ConnectedProductsModel {}
+class UserModel extends ConnectedProductsModel {
+
+  String get getToken{
+    return _token;
+  }
+
+  User get getUser{
+    return _currentUser;
+  }
+
+  set setToken(String value) => _token = value;
+
+  set setUser(User currentUser) => _currentUser = currentUser;
+
+}

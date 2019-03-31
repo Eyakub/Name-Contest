@@ -11,8 +11,11 @@ import '../models/contest_type.dart';
 import '../models/contest_package.dart';
 import '../models/country.dart';
 import '../models/language.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class CreateContest extends StatefulWidget {
+  final MainModel model;
+  CreateContest(this.model);
   @override
   State<StatefulWidget> createState() {
     return _CreateContestState();
@@ -1159,7 +1162,7 @@ class _CreateContestState extends State<CreateContest> {
       appBar: AppBar(
         title: Text('Create Contest'),
       ),
-      drawer: SideDrawer(),
+      drawer: SideDrawer(widget.model),
       body: Center(
         child: _buildBody(),
       ), //_buildBody(),

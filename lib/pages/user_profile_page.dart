@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../widgets/ui_elements/side_drawer.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class UserProfilePage extends StatefulWidget {
+  final MainModel model;
+  UserProfilePage(this.model);
+
   @override
   State<StatefulWidget> createState() {
     return _UserProfilePageState();
@@ -9,12 +13,14 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
+  
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: AppBar(
           title: Text('Profile'),
         ),
-        drawer: SideDrawer(),
+        drawer: SideDrawer(widget.model),
         body: new Stack(
           
           children: <Widget>[

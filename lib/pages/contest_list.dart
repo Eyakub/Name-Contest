@@ -89,7 +89,7 @@ class _ContestWishlistPageState extends State<ContestListPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ContestDetailsPage(),
+                          builder: (context) => ContestDetailsPage(widget.model),
                         ),
                       );
                     }),
@@ -142,7 +142,7 @@ class _ContestWishlistPageState extends State<ContestListPage> {
       appBar: AppBar(
         title: Text('Contest List'),
       ),
-      drawer: SideDrawer(),
+      drawer: SideDrawer(widget.model),
       body: Padding(
         padding:
             EdgeInsets.only(top: 14.0, bottom: 14.0, left: 10.0, right: 10.0),

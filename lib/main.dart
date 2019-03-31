@@ -50,12 +50,12 @@ class _MyAppState extends State<MyApp> {
           '/signup': (BuildContext context) => SignupPage(),
           '/home': (BuildContext context) => HomePage(_model),
           '/contests': (BuildContext context) => ContestListPage(_model),
-          '/userProfile': (BuildContext context) => UserProfilePage(),
-          '/createContest': (BuildContext context) => CreateContest(),
-          '/contestDetails': (BuildContext context) => ContestDetailsPage(),
-          '/contestWishlist': (BuildContext context) => ContestWishlistPage(),
+          '/userProfile': (BuildContext context) => UserProfilePage(_model),
+          '/createContest': (BuildContext context) => CreateContest(_model),
+          '/contestDetails': (BuildContext context) => ContestDetailsPage(_model),
+          '/contestWishlist': (BuildContext context) => ContestWishlistPage(_model),
           '/contestSubmissions': (BuildContext context) =>
-              ContestSubmissionPage(),
+              ContestSubmissionPage(_model),
           '/test': (BuildContext context) => Test(),
         },
         onGenerateRoute: (RouteSettings settings) {

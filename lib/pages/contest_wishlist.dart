@@ -4,10 +4,13 @@ import '../widgets/ui_elements/contest_prize.dart';
 import '../widgets/ui_elements/contest_title.dart';
 import '../widgets/ui_elements/side_drawer.dart';
 import '../widgets/ui_elements/contest_day_left.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class ContestWishlistPage extends StatefulWidget {
   //final String contestType;
   //ContestWishlist(this.contestType);
+  final MainModel model;
+  ContestWishlistPage(this.model);
 
   @override
   State<StatefulWidget> createState() {
@@ -127,7 +130,7 @@ class _ContestWishListPageState extends State<ContestWishlistPage> {
       appBar: AppBar(
         title: Text('Wishlist'),
       ),
-      drawer: SideDrawer(),
+      drawer: SideDrawer(widget.model),
       body: Padding(
         padding:
             EdgeInsets.only(top: 14.0, bottom: 14.0, left: 10.0, right: 10.0),

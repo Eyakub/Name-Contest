@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      drawer: SideDrawer(),
+      drawer: SideDrawer(widget.model),
       body: Container(
         child: ListView(
           children: <Widget>[
@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            HomeContestList(),
+            HomeContestList(widget.model),
             SizedBox(
               height: 10.0,
             ),

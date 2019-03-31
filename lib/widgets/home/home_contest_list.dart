@@ -3,8 +3,8 @@ import '../../scoped_models/main_scoped_model.dart';
 import '../../pages/contest_details.dart';
 
 class HomeContestList extends StatelessWidget {
-  //final MainModel model;
-  //HomeContestList(this.model);
+  final MainModel model;
+  HomeContestList(this.model);
 
   Widget _buildContestItem(BuildContext context, category) {
     return Container(
@@ -22,7 +22,7 @@ class HomeContestList extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ContestDetailsPage(),
+                  builder: (context) => ContestDetailsPage(model),
                 ),
               );
             },
