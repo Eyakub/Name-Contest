@@ -32,11 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     Map<dynamic, dynamic> userDataMap = json.decode(response.body);
-    //print(userDataMap);
-    //print(userDataMap['token']);
     datauser = userDataMap['token'];
-    print('User: ' + userDataMap['user']['id'].toString());
-    //print('UserID ' + userDataMap['user']);
     if (userDataMap == null) {
       setState(() {
         _isLoginLoading = false;
@@ -70,7 +66,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
-        body: Column(
+        body: SingleChildScrollView(
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
@@ -153,8 +150,6 @@ class _LoginPageState extends State<LoginPage> {
                         child: GestureDetector(
                           onTap: () {
                             _login();
-
-                            //Navigator.pushReplacementNamed(context, '/home');
                           },
                           child: Center(
                             child: Text(
@@ -200,6 +195,6 @@ class _LoginPageState extends State<LoginPage> {
               ],
             )
           ],
-        ));
+        )));
   }
 }

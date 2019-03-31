@@ -2,8 +2,11 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/ui_elements/side_drawer.dart';
+import '../scoped_models/main_scoped_model.dart';
 
 class Test extends StatefulWidget {
+  final MainModel model;
+  Test(this.model);
   @override
   State<StatefulWidget> createState() {
     return _TestState();
@@ -17,7 +20,7 @@ class _TestState extends State<Test> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text('hi')),
-        drawer: SideDrawer(),
+        drawer: SideDrawer(widget.model),
         body: Padding(
           padding: EdgeInsets.all(16.0),
           child: new Scaffold(

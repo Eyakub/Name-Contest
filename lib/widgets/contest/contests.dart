@@ -4,14 +4,14 @@ import '../../models/contest.dart';
 import '../../widgets/contest/contest_card.dart';
 import '../../scoped_models/main_scoped_model.dart';
 
-class Products extends StatelessWidget {
-  Widget _buildContestList(List<Contest> products) {
+class Contests extends StatelessWidget {
+  Widget _buildContestList(List<Contest> contests) {
     Widget contestCards;
-    if (products.length > 0) {
+    if (contests.length > 0) {
       contestCards = ListView.builder(
         itemBuilder: (BuildContext context, int index) =>
-            ContestCard(products[index], index),
-        itemCount: products.length,
+            ContestCard(contests[index], index),
+        itemCount: contests.length,
       );
     } else {
       // productCards = Center(
@@ -27,7 +27,7 @@ class Products extends StatelessWidget {
     print('[products widget] build');
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
-        return _buildContestList();
+        return _buildContestList(model.allContests);
       },
     );
   }

@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
           '/contestWishlist': (BuildContext context) => ContestWishlistPage(_model),
           '/contestSubmissions': (BuildContext context) =>
               ContestSubmissionPage(_model),
-          '/test': (BuildContext context) => Test(),
+          '/test': (BuildContext context) => Test(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
           return null;

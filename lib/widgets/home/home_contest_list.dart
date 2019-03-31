@@ -11,22 +11,23 @@ class HomeContestList extends StatelessWidget {
       height: 120,
       width: 100,
       child: Card(
-          elevation: 2.0,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(3.0),
-            child: Container(
-              alignment: Alignment.center,
-              child: Text(category),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ContestDetailsPage(model),
-                ),
-              );
-            },
-          )),
+        elevation: 2.0,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(3.0),
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(model),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ContestDetailsPage(model),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
